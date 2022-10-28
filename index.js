@@ -50,9 +50,9 @@ function ListNode(val, next) {
   this.val = (val===undefined ? 0 : val)
   this.next = (next===undefined ? null : next)
 }
-var a = new ListNode(3)
-var b = new ListNode(4, a)
-var c = new ListNode(2, b)
+// var a = new ListNode(3)
+// var b = new ListNode(4, a)
+// var c = new ListNode(2, b)
 
 // 数组转链表。
 function makeList1(arr) {
@@ -179,3 +179,185 @@ var maxArea = function(height) {
 
 
 // maxArea([1,8,6,2,5,4,8,3,7])
+
+// TODO：✅==========================================================
+/* 12. 整数转罗马数字
+字符          数值
+I             1
+V             5
+X             10
+L             50
+C             100
+D             500
+M             1000
+1 <= num <= 3999
+
+num = 1994
+输出: "MCMXCIV"
+ */
+
+var intToRoman = function(num) {
+  let res = '';
+  const valueSymbols = [[1000, "M"], [900, "CM"], [500, "D"], [400, "CD"], [100, "C"], [90, "XC"], [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
+
+
+  for (const [value, symbol] of valueSymbols) {
+    while (num >= value) {
+        num -= value;
+        res += symbol;
+    }
+    if (num == 0) {
+        break;
+    }
+  }
+
+  return res;
+};
+
+// console.log(intToRoman(3000))
+
+// TODO：✅==========================================================
+// 13 罗马转数字
+var RomanToInt = function(s) {
+  let res = 0;
+  s = s.replace("IV","a").replace("IX","b").replace("XL","c").replace("XC","d").replace("CD","e").replace("CM","f");
+
+  function trans(str) {
+    switch(str) {
+      case 'I': return 1;
+      case 'V': return 5;
+      case 'X': return 10;
+      case 'L': return 50;
+      case 'C': return 100;
+      case 'D': return 500;
+      case 'M': return 1000;
+      case 'a': return 4;
+      case 'b': return 9;
+      case 'c': return 40;
+      case 'd': return 90;
+      case 'e': return 400;
+      case 'f': return 900;
+    }
+  }
+
+  for (let i=0; i<s.length; i++) {
+    res += trans(s.charAt(i));
+}
+
+
+  console.log('res,', res)
+  return res;
+};
+
+// RomanToInt('CXLVIII')
+
+// TODO：✅==========================================================
+// 14 最长公共前缀
+var longestCommonPrefix = function(strs) {
+  let res = '';
+  let i ,j = 0;
+  let minStr = strs[0]
+  // console.log('minStr', minStr, 'strsi')
+
+  for(i = 0; i < minStr.length; i++) {
+    let flag = true;
+    for( j = 0; j < strs.length - 1; j++ ) {
+      // console.log('minStr.charAt(j)', minStr.charAt(i), 'strs[j+1].charAt(i)', strs[j+1].charAt(i) )
+      if(minStr.charAt(i) !== strs[j+1].charAt(i)) {
+        flag = false;
+        break;
+      }
+    }
+    if(!flag) {
+      break;
+    } else {
+      res += strs[0].charAt(i)
+    }
+  }
+
+  console.log('longestCommonPrefix-res', res)
+  return res;
+};
+
+// longestCommonPrefix(["f1d","fd","f1dd"])
+
+// TODO：❓==========================================================
+// 三数之和
+var threeSum = function(arr) {
+  const res = [];
+    const len = arr.length;
+    if(!arr || len<3) {
+      return res;
+    }
+
+    arr.sort((a, b) => a - b); // 排序
+
+    for(let i = 0; i < arr.length; i++){
+      if(arr[i] > 0) break;
+      if(i > 0 && arr[i] == arr[i-1]) continue; // 去重
+      let L = i+1;
+      let R = len -1;
+      while(L<R) {
+        const sum = arr[i] + arr[L] + arr[R];
+        if(sum === 0) {
+          res.push([arr[L],arr[R],arr[i]])
+          while (L<R && arr[L] == arr[L+1]) L++; // 去重
+          while (L<R && arr[R] == arr[R-1]) R--; // 去重
+          L++;
+          R--;
+        }
+        else if (sum < 0) L++;
+        else if (sum > 0) R--;
+      }
+    }
+    return res;
+};
+
+// TODO：==========================================================
+
+/* 给你一个长度为 n 的整数数组 nums 和 一个目标值 target。请你从 nums 中选出三个整数，使它们的和与 target 最接近。
+返回这三个数的和。
+假定每组输入只存在恰好一个解。
+
+
+输入：nums = [-1,2,1,-4], target = 1
+输出：2
+解释：与 target 最接近的和是 2 (-1 + 2 + 1 = 2) 。
+[4,0,5,-5,3,3,0,-4,-5], -2 预期 -2
+[833,736,953,-584,-448,207,128,-445,126,248,871,860,333,-899,463,488,-50,-331,903,575,265,162,-733,648,678,549,579,-172,-897,562,-503,-508,858,259,-347,-162,-505,-694,300,-40,-147,383,-221,-28,-699,36,-229,960,317,-585,879,406,2,409,-393,-934,67,71,-312,787,161,514,865,60,555,843,-725,-966,-352,862,821,803,-835,-635,476,-704,-78,393,212,767,-833,543,923,-993,274,-839,389,447,741,999,-87,599,-349,-515,-553,-14,-421,-294,-204,-713,497,168,337,-345,-948,145,625,901,34,-306,-546,-536,332,-467,-729,229,-170,-915,407,450,159,-385,163,-420,58,869,308,-494,367,-33,205,-823,-869,478,-238,-375,352,113,-741,-970,-990,802,-173,-977,464,-801,-408,-77,694,-58,-796,-599,-918,643,-651,-555,864,-274,534,211,-910,815,-102,24,-461,-146]
+-7111 预期 -2960
+*/
+
+var threeSumClosest = function(nums, target) {
+  const numLen = nums.length
+  let res = nums[0] + nums[1] + nums[numLen - 1];
+  let dis =  Math.abs(target - res); // 差值
+  let min = res;
+  nums = nums.sort((a, b) => a-b)
+  console.log('res', res, 'dis', dis)
+  for(let i = 0; i < numLen - 1 ; i++) {
+    let L = i+1, R = numLen - 1;
+    while(L < R) {
+      res = nums[L] + nums[R] + nums[i];
+      if(Math.abs(res - target) < dis) {  // 更新
+        min = res;
+        dis = Math.abs(target - res);
+        console.log('min', min, 'dis', dis)
+      } else if (res === target) {  // find!
+        return res;
+      }
+
+      // console.log('res0---', res, 'dis', dis, 'i', nums[i], 'L', nums[L], 'R', nums[R], )
+      if(res > target) {
+        R --;
+      } else if (res < target) {
+        L ++;
+      }
+      // console.log('res', res, 'dis', dis, 'targe', target)
+    }
+  }
+
+  return min;
+};
+
+console.log('threeSumClosest', threeSumClosest([833,736,953,-584,-448,207,128,-445,126,248,871,860,333,-899,463,488,-50,-331,903,575,265,162,-733,648,678,549,579,-172,-897,562,-503,-508,858,259,-347,-162,-505,-694,300,-40,-147,383,-221,-28,-699,36,-229,960,317,-585,879,406,2,409,-393,-934,67,71,-312,787,161,514,865,60,555,843,-725,-966,-352,862,821,803,-835,-635,476,-704,-78,393,212,767,-833,543,923,-993,274,-839,389,447,741,999,-87,599,-349,-515,-553,-14,-421,-294,-204,-713,497,168,337,-345,-948,145,625,901,34,-306,-546,-536,332,-467,-729,229,-170,-915,407,450,159,-385,163,-420,58,869,308,-494,367,-33,205,-823,-869,478,-238,-375,352,113,-741,-970,-990,802,-173,-977,464,-801,-408,-77,694,-58,-796,-599,-918,643,-651,-555,864,-274,534,211,-910,815,-102,24,-461,-146], -7111))
