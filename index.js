@@ -153,6 +153,70 @@ var convert_no6 = function(s, numRows) {
 
 // console.log('res', convert_no6('ABCDEFGH', 2))
 
+// TODO：❌==========================================================
+/* no.10
+给你一个字符串 s 和一个字符规律 p，请你来实现一个支持 '.' 和 '*' 的正则表达式匹配。
+'.' 匹配任意单个字符
+'*' 匹配零个或多个前面的那一个元素
+
+输入：s = "ab", p = ".*"
+输出：true
+解释：".*" 表示可匹配零个或多个（'*'）任意字符（'.'）。
+
+s='aaaaaaaaaabbbbcc' p='a*b*c*'
+*/
+
+/**
+ * @param {string} s
+ * @param {string} p
+ * @return {boolean}
+ */
+
+var isMatch = function(s, p) {
+  for(let i = 0; i < p.length; i++) {
+    console.log('--s', s)
+    if(p.charAt(i) === '.') {
+      if(i+1 < p.length && p.charAt(i+1) === '*') {
+        if(i+2 < p.length) {
+          let nextStr = s.indexOf(p.charAt(i+2))
+          s = s.slice(nextStr)
+          continue;
+        } else {
+          return true
+        }
+      } else {
+        s = s.slice(i+1)
+        continue;
+      }
+    }
+
+    if(p.charAt(i) === '*') {
+      let nextStr = p.charAt(i+1) ? s.indexOf(p.charAt(i+1)) : 1;
+      let newS = s.slice(0, nextStr)
+      // console.log('newS', newS, 'p.charAt(i-1)', p.charAt(i-1), 'reg', reg)
+      let reg = new RegExp(p.charAt(i-1),"g");
+      newS = newS.replace(reg, '')
+      if(newS !== '') {
+        return false;
+      } else {
+        s = s.slice(nextStr)
+        continue
+      }
+    }
+
+    if(p.charAt(i) === s.charAt(0)) {
+      s = s.slice(i+1);
+    }else if(p.charAt(i) !== s.charAt(i) && p.charAt(i+1)!=='*') {
+      return false
+    }else if(p.charAt(i) !== s.charAt(i) && p.charAt(i+1)==='*') {
+      s = s.slice(i+2)
+    }
+  }
+  return !s.length
+};
+
+// console.log('no.10_isMatch', isMatch('aab', 'c*a*b'))
+
 // TODO：✅==========================================================
 /* 11. 盛最多水的容器
 给定一个长度为 n 的整数数组 height 。有 n 条垂线，第 i 条线的两个端点是 (i, 0) 和 (i, height[i]) 。
@@ -173,7 +237,7 @@ var maxArea = function(height) {
     max = height[left] < height[right] ?  Math.max(max, (right - left) * height[left++]): 
     Math.max(max, (right - left) * height[right--]); 
   }
-  console.log('max', max)
+  // console.log('max', max)
   return max;
 };
 
@@ -199,7 +263,6 @@ num = 1994
 var intToRoman = function(num) {
   let res = '';
   const valueSymbols = [[1000, "M"], [900, "CM"], [500, "D"], [400, "CD"], [100, "C"], [90, "XC"], [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
-
 
   for (const [value, symbol] of valueSymbols) {
     while (num >= value) {
@@ -242,10 +305,8 @@ var RomanToInt = function(s) {
 
   for (let i=0; i<s.length; i++) {
     res += trans(s.charAt(i));
-}
+  }
 
-
-  console.log('res,', res)
   return res;
 };
 
@@ -257,12 +318,10 @@ var longestCommonPrefix = function(strs) {
   let res = '';
   let i ,j = 0;
   let minStr = strs[0]
-  // console.log('minStr', minStr, 'strsi')
 
   for(i = 0; i < minStr.length; i++) {
     let flag = true;
     for( j = 0; j < strs.length - 1; j++ ) {
-      // console.log('minStr.charAt(j)', minStr.charAt(i), 'strs[j+1].charAt(i)', strs[j+1].charAt(i) )
       if(minStr.charAt(i) !== strs[j+1].charAt(i)) {
         flag = false;
         break;
@@ -313,12 +372,11 @@ var threeSum = function(arr) {
     return res;
 };
 
-// TODO：==========================================================
+// TODO：✅==========================================================
 
 /* 给你一个长度为 n 的整数数组 nums 和 一个目标值 target。请你从 nums 中选出三个整数，使它们的和与 target 最接近。
 返回这三个数的和。
 假定每组输入只存在恰好一个解。
-
 
 输入：nums = [-1,2,1,-4], target = 1
 输出：2
@@ -334,7 +392,6 @@ var threeSumClosest = function(nums, target) {
   let dis =  Math.abs(target - res); // 差值
   let min = res;
   nums = nums.sort((a, b) => a-b)
-  console.log('res', res, 'dis', dis)
   for(let i = 0; i < numLen - 1 ; i++) {
     let L = i+1, R = numLen - 1;
     while(L < R) {
@@ -342,12 +399,10 @@ var threeSumClosest = function(nums, target) {
       if(Math.abs(res - target) < dis) {  // 更新
         min = res;
         dis = Math.abs(target - res);
-        console.log('min', min, 'dis', dis)
       } else if (res === target) {  // find!
         return res;
       }
 
-      // console.log('res0---', res, 'dis', dis, 'i', nums[i], 'L', nums[L], 'R', nums[R], )
       if(res > target) {
         R --;
       } else if (res < target) {
@@ -360,4 +415,179 @@ var threeSumClosest = function(nums, target) {
   return min;
 };
 
-console.log('threeSumClosest', threeSumClosest([833,736,953,-584,-448,207,128,-445,126,248,871,860,333,-899,463,488,-50,-331,903,575,265,162,-733,648,678,549,579,-172,-897,562,-503,-508,858,259,-347,-162,-505,-694,300,-40,-147,383,-221,-28,-699,36,-229,960,317,-585,879,406,2,409,-393,-934,67,71,-312,787,161,514,865,60,555,843,-725,-966,-352,862,821,803,-835,-635,476,-704,-78,393,212,767,-833,543,923,-993,274,-839,389,447,741,999,-87,599,-349,-515,-553,-14,-421,-294,-204,-713,497,168,337,-345,-948,145,625,901,34,-306,-546,-536,332,-467,-729,229,-170,-915,407,450,159,-385,163,-420,58,869,308,-494,367,-33,205,-823,-869,478,-238,-375,352,113,-741,-970,-990,802,-173,-977,464,-801,-408,-77,694,-58,-796,-599,-918,643,-651,-555,864,-274,534,211,-910,815,-102,24,-461,-146], -7111))
+// console.log('threeSumClosest', threeSumClosest([833,736,953,-584,-448,207,128,-445,126,248,871,860,333,-899,463,488,-50,-331,903,575,265,162,-733,648,678,549,579,-172,-897,562,-503,-508,858,259,-347,-162,-505,-694,300,-40,-147,383,-221,-28,-699,36,-229,960,317,-585,879,406,2,409,-393,-934,67,71,-312,787,161,514,865,60,555,843,-725,-966,-352,862,821,803,-835,-635,476,-704,-78,393,212,767,-833,543,923,-993,274,-839,389,447,741,999,-87,599,-349,-515,-553,-14,-421,-294,-204,-713,497,168,337,-345,-948,145,625,901,34,-306,-546,-536,332,-467,-729,229,-170,-915,407,450,159,-385,163,-420,58,869,308,-494,367,-33,205,-823,-869,478,-238,-375,352,113,-741,-970,-990,802,-173,-977,464,-801,-408,-77,694,-58,-796,-599,-918,643,-651,-555,864,-274,534,211,-910,815,-102,24,-461,-146], -7111))
+
+// TODO：✅==========================================================
+/* no.17 电话号码字母组合 
+给定一个仅包含数字 2-9 的字符串，返回所有它能表示的字母组合。答案可以按 任意顺序 返回。
+输入：digits = "23"
+输出：["ad","ae","af","bd","be","bf","cd","ce","cf"] */
+
+var comb = function(one, two) {
+  let res = [];
+  for(let i = 0; i < one.length; i++) {
+    for(let j = 0; j < two.length; j++) {
+      res.push(`${one[i]+two[j]}`);
+    }
+  }
+  return res;
+}
+var letterCombinations = function(digits) {
+  let obj = {
+    "2": ['a', 'b', 'c'],
+    '3': ['d', 'e', 'f'],
+    '4': ['g', 'h', 'i'],
+    '5': ['j', 'k', 'l'],
+    '6': ['m', 'n', 'o'],
+    '7': ['p', 'q', 'r', 's'],
+    '8': ['t', 'u', 'v'],
+    '9': ['w', 'x', 'y', 'z'],
+  };
+
+  if(digits === ''){
+    return []
+  }
+
+  let digitsArr =  digits.split('');
+  let res = obj[digitsArr[0]];
+  for(let m = 1; m < digits.length; m++) {
+    res = comb(res, obj[digitsArr[m]])
+  }
+
+  return res;
+};
+
+// console.log('no_17: ', letterCombinations('23'))
+
+// TODO：❌==========================================================
+// 采用了官方解法
+/* no.18 四数之和
+输入：nums = [1,0,-1,0,-2,2], target = 0
+输出：[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]] 
+
+[-3,-1,0,2,4,5] 2 --- [[-3,-1,2,4]]
+[2,2,2,2,2], 8
+*/
+
+var no18_fourSum = function(nums, target) {
+  nums = nums.sort((a, b) => a - b);
+  let length = Math.floor(nums.length / 2);
+  let numsLen = nums.length;
+  if([1,2,3].includes(numsLen)) {
+    return [];
+  }
+
+  let first  = 0 , fourth = numsLen - 1;
+  let sum;
+  let res = [];
+  while(first < fourth - 2) {   
+    let L = first + 1;
+    let R = fourth - 1;
+    while(L < R) {
+      sum = nums[first] + nums[fourth] + nums[L] + nums [R];
+      console.log('sum', sum, 'R', R, 'L', L, 'fi', first, 'fourth', fourth)
+      if(sum === target) {
+        res.push([nums[first], nums[L], nums[R], nums[fourth]]);
+        while(L<R && nums[R] === nums[R-1]){
+          R --;
+        }
+        R--;
+      }
+      if(sum > target) {
+          R --;
+      }
+
+      if(sum < target) {
+          L ++;
+      }
+    }
+
+    if(sum > target) {
+      while(first < fourth - 3 && nums[fourth] === nums[fourth - 1]) {
+        fourth--;
+      }
+      fourth--;
+    }
+
+    if(sum <= target) {
+      while(first < fourth - 3 && nums[first] === nums[first + 1]) {
+        first ++;
+      }
+      first++;
+    }
+    console.log('res', res, 'sum', sum, 'fi', first, 'fourth', fourth)
+  }
+
+  return res;
+};
+
+// no18_fourSum([-3,-1,0,2,4,5], 2)
+
+// TODO：✅==========================================================
+/* no.21 合并省序链表
+输入：l1 = [1,2,4], l2 = [1,3,4]
+输出：[1,1,2,3,4,4]
+*/
+
+let list1 = makeList1([1]);
+let list2 = makeList1([1,3,4])
+var no21_mergeTwoLists = function(list1, list2) {
+  let res = new ListNode(0);
+  let list3 = res;
+  while(list1 || list2) {
+    if(!list2) {
+      list3.next = list1;
+      return res.next;
+    }
+    if(!list1) {
+      list3.next = list2;
+      return res.next;
+    }
+
+    if(list1.val > list2.val) {
+      list3.next = list2;
+      list3 = list3.next;
+      list2 = list2.next;
+    } else {
+      list3.next = list1;
+      list3 = list3.next;
+      list1 = list1.next;
+    }
+  }
+
+  console.log('res---', res.next);
+  return res.next;
+};
+
+// console.log('no21_mergeTwoLists-res, ' ,no21_mergeTwoLists(list1, list2))
+
+// TODO：==========================================================
+/* 22. 括号生成
+输入：n = 3
+输出：["((()))","(()())","(())()","()(())","()()()"]
+*/
+
+var no22_generateParenthesis = function(n) {
+  if (n == 0) return [];
+
+  let data = new Map();
+  data.set(0, ['']);
+
+  for (let i = 1; i <= n; i++) {
+    let result = [];
+    for (let j = 0; j <= i - 1; j++) {
+      let center = data.get(j);
+      let right = data.get(i - 1 - j);
+      for (let k = 0; k < center.length; k++) {
+        for (let t = 0; t < right.length; t++) {
+          result.push(`(${center[k]})${right[t]}`);
+        }
+      }
+    }
+    data.set(i, result);
+  }
+  return data.get(n);
+};
+
+console.log('no22_generateParenthesis', no22_generateParenthesis(3))
+

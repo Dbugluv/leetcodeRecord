@@ -112,3 +112,91 @@ renderWithHooks(
   context,
   renderExpirationTime,
 );
+
+
+
+// 组件初始化的时候，每一个hook执行，都会调用 mountWorkInProgressHook
+
+function mountWorkInProgressHook() {
+  const hook = {
+    memoizedState: null,  // useState中 保存 state信息 ｜ useEffect 中 保存着 effect 对象 ｜ useMemo 中 保存的是缓存的值和deps ｜ useRef中保存的是ref 对象
+    baseState: null,
+    baseQueue: null,
+    queue: null,
+    next: null,
+  };
+  if (workInProgressHook === null) { // 例子中的第一个`hooks`-> useState(0) 走的就是这样。
+    currentlyRenderingFiber.memoizedState = workInProgressHook = hook;
+  } else {
+    workInProgressHook = workInProgressHook.next = hook;
+  }
+  return workInProgressHook;
+}
+
+//dispatchAction 无状态组件更新机制
+// useState和useReducer触发函数更新的方法都是dispatchAction
+
+function dispatchAction(fiber, queue, action) {
+
+  // 计算 expirationTime 过程略过。
+  /* 创建一个update */
+  const update= {
+    expirationTime,
+    suspenseConfig,
+    action,
+    eagerReducer: null,
+    eagerState: null,
+    next: null,
+  }
+  /* 把创建的update */
+  const pending = queue.pending;
+  if (pending === null) {  // 证明第一次更新
+    update.next = update;
+  } else { // 不是第一次更新
+    update.next = pending.next;
+    pending.next = update;
+  }
+  
+  queue.pending = update;
+  const alternate = fiber.alternate;
+  /* 判断当前是否在渲染阶段 
+  dispatchAction第二步就是判断当前函数组件的fiber对象是否处于渲染阶段，如果处于渲染阶段，
+  那么不需要我们在更新当前函数组件，只需要更新一下当前update的expirationTime即可。*/
+  if ( fiber === currentlyRenderingFiber || (alternate !== null && alternate === currentlyRenderingFiber)) {
+    didScheduleRenderPhaseUpdate = true;
+    update.expirationTime = renderExpirationTime;
+    currentlyRenderingFiber.expirationTime = renderExpirationTime;
+  } else { /* 当前函数组件对应fiber没有处于调和渲染阶段 ，那么获取最新state , 执行更新 */
+    if (fiber.expirationTime === NoWork && (alternate === null || alternate.expirationTime === NoWork)) {
+      const lastRenderedReducer = queue.lastRenderedReducer;
+      if (lastRenderedReducer !== null) {
+        let prevDispatcher;
+        try {
+          const currentState = queue.lastRenderedState; /* 上一次的state */
+          const eagerState = lastRenderedReducer(currentState, action); /*
+          调用lastRenderedReducer获取最新的state,和上一次的currentState，进行浅比较，如果相等，*/
+          update.eagerReducer = lastRenderedReducer;
+          update.eagerState = eagerState;
+          if (is(eagerState, currentState)) { 
+            return
+          }
+        } 
+      }
+    }
+    scheduleUpdateOnFiber(fiber, expirationTime);
+  }
+}
+
+function mountEffect( // 在组件第一次渲染的时候会调用mountEffect方法
+  create,
+  deps,
+) {
+  const hook = mountWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  hook.memoizedState = pushEffect(
+    HookHasEffect | hookEffectTag, 
+    create, // useEffect 第一次参数，就是副作用函数
+    undefined,
+    nextDeps, // useEffect 第二次参数，deps
+  );
+}
