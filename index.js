@@ -471,7 +471,6 @@ var letterCombinations = function(digits) {
 
 var no18_fourSum = function(nums, target) {
   nums = nums.sort((a, b) => a - b);
-  let length = Math.floor(nums.length / 2);
   let numsLen = nums.length;
   if([1,2,3].includes(numsLen)) {
     return [];
@@ -485,7 +484,7 @@ var no18_fourSum = function(nums, target) {
     let R = fourth - 1;
     while(L < R) {
       sum = nums[first] + nums[fourth] + nums[L] + nums [R];
-      console.log('sum', sum, 'R', R, 'L', L, 'fi', first, 'fourth', fourth)
+      // console.log('sum', sum, 'R', R, 'L', L, 'fi', first, 'fourth', fourth)
       if(sum === target) {
         res.push([nums[first], nums[L], nums[R], nums[fourth]]);
         while(L<R && nums[R] === nums[R-1]){
@@ -529,8 +528,8 @@ var no18_fourSum = function(nums, target) {
 输出：[1,1,2,3,4,4]
 */
 
-let list1 = makeList1([1]);
-let list2 = makeList1([1,3,4])
+// let list1 = makeList1([1]);
+// let list2 = makeList1([1,3,4])
 var no21_mergeTwoLists = function(list1, list2) {
   let res = new ListNode(0);
   let list3 = res;
@@ -561,33 +560,280 @@ var no21_mergeTwoLists = function(list1, list2) {
 
 // console.log('no21_mergeTwoLists-res, ' ,no21_mergeTwoLists(list1, list2))
 
-// TODO：==========================================================
+// TODO：❓==========================================================
 /* 22. 括号生成
 输入：n = 3
 输出：["((()))","(()())","(())()","()(())","()()()"]
 */
 
 var no22_generateParenthesis = function(n) {
-  if (n == 0) return [];
+    if (n == 0) return [];
 
-  let data = new Map();
-  data.set(0, ['']);
+    let data = new Map();
+    data.set(0, ['']);
+//简单来说，在求N个括号的排列组合时，把第N种情况（也就是N个括号排列组合）视为单独拿一个括号E出来，
+// 剩下的N-1个括号分为两部分，P个括号和Q个括号，P+Q=N-1，然后这两部分分别处于括号E内和括号E的右边，
+// 各自进行括号的排列组合。由于我们是一步步计算得到N个括号的情况的，
+// 所以小于等于N-1个括号的排列组合方式我们是已知的（用合适的数据结构存储，
+// 方便后续调用，且在存储时可利用特定数据结构实现题目某些要求，如排序，去重等），
+// 且P+Q=N-1，P和Q是小于等于N-1的，所以我们能直接得到P个和Q个括号的情况，进而得到N个括号的结果！
+// 剩下的括号要么在这一组新增的括号内部，要么在这一组新增括号的外部（右侧）。
+// 既然知道了 i<n 的情况，那我们就可以对所有情况进行遍历：
+// "(" + 【i=p时所有括号的排列组合】 + ")" + 【i=q时所有括号的排列组合】
+// 其中 p + q = n-1，且 p q 均为非负整数。
+// 事实上，当上述 p 从 0 取到 n-1，q 从 n-1 取到 0 后，所有情况就遍历完了。
+// 注：上述遍历是没有重复情况出现的，即当 (p1,q1)≠(p2,q2) 时，按上述方式取的括号组合一定不同。
 
-  for (let i = 1; i <= n; i++) {
-    let result = [];
-    for (let j = 0; j <= i - 1; j++) {
-      let center = data.get(j);
-      let right = data.get(i - 1 - j);
-      for (let k = 0; k < center.length; k++) {
-        for (let t = 0; t < right.length; t++) {
-          result.push(`(${center[k]})${right[t]}`);
+    for (let i = 1; i <= n; i++) {
+      let result = [];
+      for (let j = 0; j <= i - 1; j++) {
+        let center = data.get(j);
+        let right = data.get(i - 1 - j);
+        console.log('center', center, 'tight', right)
+        for (let k = 0; k < center.length; k++) {
+          for (let t = 0; t < right.length; t++) {
+            console.log('${center[k]})$', center[k],'{right[t]}', right[t])
+            result.push(`(${center[k]})${right[t]}`);
+          }
         }
       }
+      data.set(i, result);
     }
-    data.set(i, result);
-  }
-  return data.get(n);
+    return data.get(n);
 };
 
-console.log('no22_generateParenthesis', no22_generateParenthesis(3))
+// console.log('no22_generateParenthesis', no22_generateParenthesis(3))
 
+
+// TODO：✅==========================================================
+// 执行用时：88 ms, 在所有 JavaScript 提交中击败了72.35%的用户
+// 内存消耗：46 MB, 在所有 JavaScript 提交中击败了75.00%的用户
+
+// 给你一个链表数组，每个链表都已经按升序排列。
+// 请你将所有链表合并到一个升序链表中，返回合并后的链表。
+// 示例 1：
+// 输入：lists = [[1,4,5],[1,3,4],[2,6]]
+// 输出：[1,1,2,3,4,4,5,6]
+// 解释：链表数组如下：
+// [
+//   1->4->5,
+//   1->3->4,
+//   2->6
+// ]
+// 将它们合并到一个有序链表中得到。
+// 1->1->2->3->4->4->5->6
+
+var no23_mergeKLists = function(lists) {
+  let listLen = lists.length;
+  let resArr = lists;
+  if(lists.length === 1) {
+    return lists[0];
+  }
+  if(lists.length === 0) {
+    return []
+  }
+
+  while(resArr.length > 1) {
+    let tempArr = [];
+    for(let i = 0; i < resArr.length; i += 2) {
+      a = ((i+1 < listLen) ? no21_mergeTwoLists(resArr[i], resArr[i+1]) : resArr[i]);
+      tempArr.push(a)
+    }
+    resArr = tempArr;
+  }
+  return resArr[0]
+};
+
+// let a1 = makeList1([1,4,5]);
+// let a2 = makeList1([1,3,4]);
+// let a3 = makeList1([2,6]);
+
+// console.log('no.23', no23_mergeKLists([]))
+
+// TODO：✅==========================================================
+// 24. 两两交换链表中相邻的节点
+//必须在不修改节点内部的值的情况下完成本题（即，只能进行节点交换）
+
+/* 输入：head = [1,2,3,4]
+输出：[2,1,4,3]
+
+输入：head = []
+输出：[] */
+
+
+/* var no24_swapPairs = function(head) {
+  if(!head) {
+    return head;
+  }
+  if(!head.next) {
+    return head;
+  }
+  let cnt = 1;
+  let temp = new ListNode(0);
+  let res = temp;
+  while(head) {
+    if(cnt % 2 !== 0) {
+      if(head.next) {
+        temp.next = new ListNode(head.next.val);
+        temp = temp.next;
+        console.log('temp1', temp)
+        temp.next = new ListNode(head.val)
+        console.log('temp2', temp.next)
+        temp = temp.next;
+      } else {
+        temp.next = new ListNode(head.val)
+        temp = temp.next;
+      }
+    }
+    head = head.next;
+    cnt++;
+  }
+
+  return res.next
+}; */
+
+// 递归写法！！
+var no24_swapPairs = function(head) {
+  if(!head || !head.next) {
+    console.log('head--', head)
+    return head;
+  }
+
+  let temp = head.next;
+  head.next = no24_swapPairs(head.next.next);  // 交换下一组， temp.next === head.next.next
+  console.log('head', head)
+  temp.next = head;
+  console.log('temp', temp)
+  return temp
+};
+
+// let test1 = makeList1([1, 2, 3, 4])
+// console.log('no24_swapPairs', no24_swapPairs(test1))
+
+// TODO：✅==========================================================
+// 206. 反转链表
+// 递归效率低
+var no206_reverse = (head) => {
+  if(head == null || head.next == null){
+    return head;
+  }
+  let newList = reverse(head.next);
+  head.next.next = head;
+  head.next = null;
+
+  return newList;
+}
+
+// TODO：==========================================================
+/* 25. K 个一组翻转链表
+给你链表的头节点 head ，每 k 个节点一组进行翻转，请你返回修改后的链表。
+k 是一个正整数，它的值小于或等于链表的长度。如果节点总数不是 k 的整数倍，那么请将最后剩余的节点保持原有顺序。
+你不能只是单纯的改变节点内部的值，而是需要实际进行节点交换。
+
+输入：head = [1,2,3,4,5], k = 2
+输出：[2,1,4,3,5]
+
+输入：head = [1,2,3,4,5], k = 3
+输出：[3,2,1,4,5] */
+
+
+let successor = null;
+
+var no25_reverseKGroup = function(head, k) {
+  let cnt = 1;
+  let cur = head, fast = head.next;
+  let newList = head;
+  while(fast !== null) {
+    for(let i = 0; i < k; i++) {
+      
+    }
+  }
+};
+
+let no25 = makeList1([1,2,3,4,5])
+
+
+// TODO：✅==========================================================
+// 82. 删除排序链表中的重复元素 II
+/* 
+  输入：head = [1,2,3,3,4,4,5]
+  输出：[1,2,5] 
+*/
+
+// 1.找整个递归的终止条件：递归应该在什么时候结束？
+// 2.找返回值：应该给上一级返回什么信息？
+// 3.本级递归应该做什么：在这一级递归中，应该完成什么任务？
+
+// var no82_deleteDuplicates = function(head) {
+//   if(!head || !head.next) {
+//     return head;
+//   }
+//   let savePoint = new ListNode(0);
+//   let res = savePoint;
+//   let repetition;
+//   while(head) {
+//     if((head.next && (head.val === head.next.val)) || (head.val === repetition)) {
+//       repetition = head.val;
+//     } else {
+//       savePoint.next = new ListNode(head.val);
+//       savePoint = savePoint.next
+//     }
+//     head = head.next;
+//   }
+//   return res.next;
+// };
+
+
+var no82_deleteDuplicates = function(head) {
+  if(!head || !head.next) {
+    return head;
+  }
+  let savePoint = head;
+  let repetition;
+  while(head) {
+    if((head.next && (head.val === head.next.val)) || (head.val === repetition)) {
+      repetition = head.val;
+    }
+    head.next = head.next.next;
+  }
+  return savePoint.next;
+};
+
+// let test1 = makeList1([1,1,1,2,3,3,4,5,6])
+// console.log('no82_deleteDuplicates', no82_deleteDuplicates(test1))
+
+
+// TODO：==========================================================
+// 83. 删除排序链表中的重复元素
+
+var no83_deleteDuplicates = function(head) {
+  if(!head || !head.next) {
+    return head;
+  }
+  
+  head.next = no83_deleteDuplicates(head.next);
+  if(head.val === head.next.val) {
+    head.next = head.next.next
+  }
+  return head
+};
+
+/* var no83_deleteDuplicates = function(head) {
+  if(!head || !head.next) {
+    return head;
+  }
+
+  let res = head;
+  
+  while(head) {
+    if(head.next && head.val === head.next.val) {
+      head.next = head.next.next
+    } else {
+      head = head.next
+    }
+  }
+
+  return res;
+}; */
+// let test1 = makeList1([1,1,1,2,3,3,4,5,6])
+// console.log('no83_deleteDuplicates', no83_deleteDuplicates(test1))
