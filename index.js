@@ -453,10 +453,10 @@ var removeNthFromEnd = function(head, n) {
     headLen ++;
     newHead = newHead.next;
   }
-  console.log('headlengf', headLen, newHead, 'res', res.next)
+  // console.log('headlengf', headLen, newHead, 'res', res.next)
 };
 
-console.log('no.19-removeNthFromEnd', removeNthFromEnd([1,2,3,4,5], 2))
+// console.log('no.19-removeNthFromEnd', removeNthFromEnd([1,2,3,4,5], 2))
 
 // TODO：✅==========================================================
 /* no.17 电话号码字母组合 
@@ -736,15 +736,12 @@ var no23_mergeKLists = function(lists) {
 // 递归写法！！
 var no24_swapPairs = function(head) {
   if(!head || !head.next) {
-    console.log('head--', head)
     return head;
   }
 
   let temp = head.next;
   head.next = no24_swapPairs(head.next.next);  // 交换下一组， temp.next === head.next.next
-  console.log('head', head)
   temp.next = head;
-  console.log('temp', temp)
   return temp
 };
 
@@ -1212,17 +1209,34 @@ var no35_searchInsert = function(nums, target) {
 
 var no36_isValidSudoku = function(board) {
   let row = {}; 
+  let col = new Array(9);
+  let box = {};
+  for(let i = 0;i < 9;i++){
+    // row[i] = new Array(10).fill(0);
+    col[i] = new Array(10).fill(0);
+    // box[i] = new Array(10).fill(0);
+  }
+  console.log('col', col)
+
   for(let i = 0; i < 9; i++) {
+    row = {};
     for(let j = 0; j < 9; j++) {
       if(board[i][j] == '.') continue;
       let num = Number(board[i][j]);
-      if(row.num) {
+      if(row[num]) {
         return false;
       } else {
         row[num] = 1;
       }
+      if(col[j][num]) {
+        return false;
+      } else {
+        col[j][num] = 1;
+      }
     }
   }
+
+  return true;
 };
 
 

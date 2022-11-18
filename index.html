@@ -10,34 +10,19 @@
     <script type="text/javascript" src="./index.js"></script>
     <script>
         window.onload = () => {
-
-          function a(data) {
-            console.log('data', data)
-            return arg => {
-              console.log('arg', arg)
-            }
-          }
-
-          function b(fn) {
-            return fn()
-          }
-
-          b(a(111111))
-
             function ajax (data) {
                 console.log(new Date().toLocaleTimeString() + ' - ' + data)
             }
 
             function throttle (fn, delay) {
                 return args => {
-                    console.log('args', args,)
-                    // if (fn.id) return
+                    if (fn.id) return
 
-                    // fn.id = setTimeout(() => {
-                    //     fn.call(this, args)
-                    //     clearTimeout(fn.id)
-                    //     fn.id = null
-                    // }, delay)
+                    fn.id = setTimeout(() => {
+                        fn.call(this, args)
+                        clearTimeout(fn.id)
+                        fn.id = null
+                    }, delay)
                 }
             }
 
