@@ -1,15 +1,37 @@
 <!DOCTYPE html>
-<html lang="zh-ch">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <script type="text/javascript" src="./js/flexible.js"></script>
-  <link rel="stylesheet" type="text/css" href="./css/firstPage.css">
-  <title>jd</title>
+    <title>加入节流-定时器</title>
 </head>
 <body>
-  <script type="text/javascript" src="./index.js"></script>
+    <div>
+        加入定时器：<input type="text" id="throttle"/>
+    </div>
+    <script type="text/javascript" src="./index.js"></script>
+    <script>
+        window.onload = () => {
+            function ajax (data) {
+                console.log(new Date().toLocaleTimeString() + ' - ' + data)
+            }
+
+            function throttle (fn, delay) {
+                return args => {
+                    if (fn.id) return
+
+                    fn.id = setTimeout(() => {
+                        fn.call(this, args)
+                        clearTimeout(fn.id)
+                        fn.id = null
+                    }, delay)
+                }
+            }
+
+            const throttleAjax = throttle(ajax, 1000)
+
+            document.querySelector('#throttle').addEventListener('keyup', e => {
+                throttleAjax(e.target.value)
+            })
+        }
+    </script>
 </body>
-</html>;
+</html>

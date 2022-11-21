@@ -736,15 +736,12 @@ var no23_mergeKLists = function(lists) {
 // 递归写法！！
 var no24_swapPairs = function(head) {
   if(!head || !head.next) {
-    console.log('head--', head)
     return head;
   }
 
   let temp = head.next;
   head.next = no24_swapPairs(head.next.next);  // 交换下一组， temp.next === head.next.next
-  console.log('head', head)
   temp.next = head;
-  console.log('temp', temp)
   return temp
 };
 
@@ -754,30 +751,30 @@ var no24_swapPairs = function(head) {
 // TODO：✅==========================================================
 // 206. 反转链表
 // 递归效率低
-/* var no206_reverse = (head) => {
-  if(head == null || head.next == null){
-    return head;
-  }
-  let newList = reverse(head.next);
-  head.next.next = head;
-  head.next = null;
+// var no206_reverse = (head) => {
+//   if(head == null || head.next == null){
+//     return head;
+//   }
+//   let newList = reverse(head.next);
+//   head.next.next = head;
+//   head.next = null;
 
-  return newList;
-} */
+//   return newList;
+// }
 
 var no206_reverse = (head) => {
   let pre = null;
-  let cur = head;
-  while(cur) {
-    let next = cur.next;
-    cur.next = pre;
-    pre = cur;
-    cur = next;
+  let curr = head;
+  while (curr != null) {
+      let next = curr.next;
+      curr.next = pre;
+      pre = curr;
+      curr = next;
   }
   return pre;
 }
 
-// TODO：==========================================================
+// TODO：❗️==========================================================
 /* 25. K 个一组翻转链表
 给你链表的头节点 head ，每 k 个节点一组进行翻转，请你返回修改后的链表。
 k 是一个正整数，它的值小于或等于链表的长度。如果节点总数不是 k 的整数倍，那么请将最后剩余的节点保持原有顺序。
@@ -793,18 +790,468 @@ k 是一个正整数，它的值小于或等于链表的长度。如果节点总
 let successor = null;
 
 var no25_reverseKGroup = function(head, k) {
-  let cnt = 1;
-  let cur = head, fast = head.next;
-  let newList = head;
-  while(fast !== null) {
-    for(let i = 0; i < k; i++) {
-      
+  let dummy = new ListNode(0);
+  dummy.next = head;
+
+  let pre = dummy;
+  let end = dummy;
+
+  while(end.next !== null) {
+    // console.log('end', end.next)
+    for(let i = 0; i < k && end !== null; i++) {
+      end = end.next
     }
+    if (end == null) break;
+    let start = pre.next;
+    let next = end.next;
+    end.next = null;
+    pre.next = no206_reverse(start);
+    start.next = next;
+    pre = start;
+
+    end = pre;
   }
+
+  return dummy.next;
 };
 
 let no25 = makeList1([1,2,3,4,5])
-console.log('no206_reverse', no206_reverse(no25))
+// console.log('no25_reverseKGroup', no25_reverseKGroup(no25, 2))
+
+// TODO：✅==========================================================
+// 26. 删除有序数组中的重复项
+/* 给你一个 升序排列 的数组 nums ，请你 原地 删除重复出现的元素，使每个元素 只出现一次 ，返回删除后数组的新长度。
+元素的 相对顺序 应该保持 一致 。
+由于在某些语言中不能改变数组的长度，所以必须将结果放在数组nums的第一部分。更规范地说，如果在删除重复项之后有 k 个元素，那么 nums 的前 k 个元素应该保存最终结果。
+将最终结果插入 nums 的前 k 个位置后返回 k 。
+不要使用额外的空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。 */
+
+var no26_removeDuplicates = function(nums) {
+  let pre = 0, cur = 1;
+  let numsLen = nums.length;
+  if(numsLen === 1) {
+    return 1;
+  }
+
+  while(cur < numsLen) {
+    console.log('cur', cur)
+    if(nums[pre] !== nums[cur]) {
+      pre++;
+      nums[pre] = nums[cur];
+    }
+    cur ++;
+  }
+  console.log('num', nums, 'pre', pre)
+  return pre+1;
+};
+
+// console.log('no26_removeDuplicates', no26_removeDuplicates([1,2,3,4,5,6,6,6,6,6,6,6,6,7]))
+
+// TODO：✅==========================================================
+/* 27. 移除元素
+给你一个数组 nums 和一个值 val，你需要 原地 移除所有数值等于 val 的元素，并返回移除后数组的新长度。
+不要使用额外的数组空间，你必须仅使用 O(1) 额外空间并 原地 修改输入数组。
+元素的顺序可以改变。你不需要考虑数组中超出新长度后面的元素。 */
+// 输入：nums = [3,2,2,3], val = 3
+// 输出：2, nums = [2,2]
+var no27_removeElement = function(nums, val) {
+  let pre = 0, cur = 0;
+  let numsLen = nums.length;
+
+  while(cur < numsLen) {
+    if(nums[cur] !== val) {
+      nums[pre] = nums[cur];
+      pre++;
+    }
+    cur ++;
+  }
+  console.log('nums', nums, 'pre', pre)
+  return pre;
+};
+
+// console.log('no27_removeElement', no27_removeElement([1,2,3,4,5,6,6,6,6,6,6,6,6,7], 2))
+
+// TODO：✅==========================================================
+// 28. 找出字符串中第一个匹配项的下标
+/* 给你两个字符串 haystack 和 needle ，请你在 haystack 字符串中找出 needle 字符串的第一个匹配项的下标（下标从 0 开始）。
+如果 needle 不是 haystack 的一部分，则返回  -1 。 \
+
+输入：haystack = "sadbutsad", needle = "sad"
+输出：0
+解释："sad" 在下标 0 和 6 处匹配。
+第一个匹配项的下标是 0 ，所以返回 0 。
+*/
+
+var no28_strStr = function(haystack, needle) {
+  let start = 0, needleStart = 0;
+  let needleLen = needle.length;
+  let haystackLen = haystack.length;
+  let res = -1;
+  while(start < haystackLen) {
+    if(needle.charAt(needleStart) === haystack.charAt(start + needleStart)) {
+      needleStart++;
+    } else {
+      start++;
+      needleStart = 0;
+    }
+
+    if(needleStart === needleLen) {
+      return start;
+    }
+  }
+  return res;
+};
+
+// console.log('no28_strStr', no28_strStr("mississippi","issip"))
+// console.log('no28_strStr', no28_strStr("aaabc","abc"))
+
+// TODO：✅==========================================================
+// 29. 两数相除
+/* 给定两个整数，被除数 dividend 和除数 divisor。将两数相除，要求不使用乘法、除法和 mod 运算符。
+返回被除数 dividend 除以除数 divisor 得到的商。
+整数除法的结果应当截去（truncate）其小数部分，例如：truncate(8.345) = 8 以及 truncate(-2.7335) = -2
+示例 1:
+输入: dividend = 10, divisor = 3
+输出: 3
+解释: 10/3 = truncate(3.33333..) = truncate(3) = 3 
+
+
+输入: dividend = 7, divisor = -3
+输出: -2
+解释: 7/-3 = truncate(-2.33333..) = -2
+*/
+const MAXVALUE = 2147483647;
+const MINVALUE = -2147483648
+var no29_divide = function(dividend, divisor) {
+  let res = 1;
+  let isDis = (divisor < 0 && dividend > 0) || (dividend < 0 && divisor > 0);
+  console.log('isDis', isDis)
+  divisor = Math.abs(divisor);
+  dividend = Math.abs(dividend)
+  let double = divisor;
+  if(dividend === 0 || dividend < divisor) {
+    return isDis? -0: 0;
+}
+  if( isDis && dividend === 2141483648 && divisor === 1) {
+    return MINVALUE;
+  }
+
+  if(divisor === MINVALUE && dividend === MINVALUE) {
+    return isDis ? -1 : 1;
+  }
+
+  if(divisor === MAXVALUE && dividend === MAXVALUE) {
+    return isDis ? -1 : 1;
+  }
+
+  if(dividend >= MAXVALUE && divisor === 1) {
+    return isDis ? -MAXVALUE : MAXVALUE
+  }
+
+  while(double*2 < dividend) {
+    double = 2*double;
+    res *= 2;
+  }
+  // console.log('double', double)
+  if(2*double === dividend) {
+    return  isDis ? -res*2 : res*2;
+  }
+
+  dividend = dividend - double;
+  // console.log('dividend',dividend , 'double', double, 'res', res)
+  while(dividend >= divisor) {
+    dividend = dividend - divisor;
+    res ++;
+  }
+
+  console.log('res', res)
+  return isDis ? -res : res;
+};
+
+// console.log('no29_divide', no29_divide(-2147483648, 2))
+
+// TODO：待定==========================================================
+/* 30. 串联所有单词的子串
+给定一个字符串 s 和一个字符串数组 words。 words 中所有字符串 长度相同。
+ s 中的 串联子串 是指一个包含  words 中所有字符串以任意顺序排列连接起来的子串。
+
+例如，如果 words = ["ab","cd","ef"]， 那么 "abcdef"， "abefcd"，"cdabef"， "cdefab"，"efabcd"， 
+和 "efcdab" 都是串联子串。 "acdbef" 不是串联子串，因为他不是任何 words 排列的连接。
+返回所有串联字串在 s 中的开始索引。你可以以 任意顺序 返回答案。 */
+
+// 输入：s = "barfoothefoobarman", words = ["foo","bar"]
+// 输出：[0,9]
+// 解释：因为 words.length == 2 同时 words[i].length == 3，连接的子字符串的长度必须为 6。
+// 子串 "barfoo" 开始位置是 0。它是 words 中以 ["bar","foo"] 顺序排列的连接。
+// 子串 "foobar" 开始位置是 9。它是 words 中以 ["foo","bar"] 顺序排列的连接。
+// 输出顺序无关紧要。返回 [9,0] 也是可以的。
+
+var no30_findSubstring = function(s, words) {
+
+};
+
+// TODO：❗️抄的==========================================================
+// 31. 下一个排列
+/* 整数数组的一个 排列  就是将其所有成员以序列或线性顺序排列。
+例如，arr = [1,2,3] ，以下这些都可以视作 arr 的排列：[1,2,3]、[1,3,2]、[3,1,2]、[2,3,1] 。
+整数数组的 下一个排列 是指其整数的下一个字典序更大的排列。更正式地，
+如果数组的所有排列根据其字典顺序从小到大排列在一个容器中，那么数组的 下一个排列 就是在这个有序容器中排在它后面的那个排列。
+如果不存在下一个更大的排列，那么这个数组必须重排为字典序最小的排列（即，其元素按升序排列）。
+
+例如，arr = [1,2,3] 的下一个排列是 [1,3,2] 。
+类似地，arr = [2,3,1] 的下一个排列是 [3,1,2] 。
+而 arr = [3,2,1] 的下一个排列是 [1,2,3] ，因为 [3,2,1] 不存在一个字典序更大的排列。
+给你一个整数数组 nums ，找出 nums 的下一个排列。
+
+必须 原地 修改，只允许使用额外常数空间。 */
+
+// 输入：nums = [1,2,3] ， [1,5,1]
+// 输出：[1,3,2]， [5,1,1]
+
+
+var no31_nextPermutation = function(nums) {
+  //定义变量 从后向前看
+let i = nums.length - 2, k = nums.length - 1
+// 遍历寻找相邻的升序元素，此时[i+1,end]为降序
+for (; i >= 0; --i) {
+    if (nums[i] < nums[i + 1]) break
+}
+// 如果不存在，则直接翻转整个数组
+if (i === -1) {
+    nums.reverse()
+} else {
+    for (; k >= 0; --k) {
+        // 遍历寻找[i+1,end]中是否有数字大于nums[i]，若存在，则交换
+        if (nums[i] < nums[k]) {
+            [nums[i], nums[k]] = [nums[k], nums[i]]
+            // 此时[i+1,end]必为降序，使之翻转为升序，保证i后为最小值
+            let arr = nums.splice(i + 1,)
+            arr.reverse()
+            nums.splice(i + 1, 0, ...arr)
+            break
+        }
+    }
+}
+return nums
+};
+
+// console.log('no31_nextPermutation', no31_nextPermutation([1,5,1]))
+
+// TODO：==========================================================
+// 32. 最长有效括号
+/* 给你一个只包含 '(' 和 ')' 的字符串，找出最长有效（格式正确且连续）括号子串的长度。
+示例 1：
+输入：s = "(()"
+输出：2
+解释：最长有效括号子串是 "()"
+示例 2：
+
+输入：s = ")()())"
+输出：4
+解释：最长有效括号子串是 "()()"
+示例 3：
+
+输入：s = ""
+输出：0 */
+
+var longestValidParentheses = function(s) {
+
+};
+
+
+// TODO：✅ cv ==========================================================
+// 33. 搜索旋转排序数组
+/* 整数数组 nums 按升序排列，数组中的值 互不相同 。
+在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 旋转，使数组变为
+[nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。
+例如， [0,1,2,4,5,6,7] 在下标 3 处经旋转后可能变为 [4,5,6,7,0,1,2] 。
+给你 旋转后 的数组 nums 和一个整数 target ，如果 nums 中存在这个目标值 target ，则返回它的下标，否则返回 -1 。
+你必须设计一个时间复杂度为 O(log n) 的算法解决此问题。 
+
+输入：nums = [4,5,6,7,0,1,2], target = 0
+输出：4
+*/
+
+var no33_search = function(nums, target) {
+  let numsLen = nums.length;
+  let l = 0, r = numsLen - 1;
+  while (l <= r){
+      let mid = (l + r) >> 1;
+      if (target == nums[mid]) return mid;
+
+      if (nums[l] <= nums[mid]) // 左边有序
+      {
+          if (target >= nums[l] && target < nums[mid])
+              r = mid-1;
+          else
+              l = mid+1;
+      }
+      else  // 右边有序
+      {
+          if (target > nums[mid] && target <= nums[r])
+              l = mid +1;
+          else
+              r = mid -1;
+      }
+  }
+  return -1;
+};
+
+// console.log('no33_search', no33_search([5,1,3], 5))
+
+// TODO：✅==========================================================
+// 34. 在排序数组中查找元素的第一个和最后一个位置
+/* 给你一个按照 非递减顺序排列 的整数数组 nums，和一个目标值 target。请你找出给定目标值在数组中的开始位置和结束位置。
+如果数组中不存在目标值 target，返回 [-1, -1]。
+你必须设计并实现时间复杂度为 O(log n) 的算法解决此问题。
+输入：nums = [5,7,7,8,8,10], target = 8
+输出：[3,4]
+*/
+
+var no34_searchRange = function(nums, target) {
+  let numsLen = nums.length;
+  let left = 0, right = numsLen - 1;
+  let res = [];
+  while(left <= right) {
+    let mid = Math.floor((left+right)  / 2);
+    if(nums[mid] === target) {
+      let tempMid = mid;
+      while(nums[tempMid] === nums[tempMid-1] && (tempMid - 1 >= 0)) {
+        tempMid --;
+      }
+
+      res[0] = tempMid;
+      while(nums[mid] === nums[mid+1] && (mid + 1 < numsLen)) {
+        mid ++
+      }
+      res[1] = mid;
+      return res;
+    }
+    if(nums[mid] > target) {
+      right = mid - 1;
+    } else if (nums[mid] < target) {
+      left = mid + 1;
+    }
+  }
+  return [-1, -1];
+};
+// console.log('no34_searchRange', no34_searchRange([1,1,2], 1))
+
+// TODO：✅==========================================================
+// 35. 搜索插入位置
+// 给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
+// 输入: nums = [1,3,5,6], target = 5
+// 输出: 2
+// 输入: nums = [1,3,5,6], target = 2
+// 输出: 1
+
+// me:
+// var no35_searchInsert = function(nums, target) {
+//   let numsLen = nums.length;
+//   let left = 0, right = numsLen - 1;
+//   if(numsLen === 0) {
+//     return 1;
+//   }
+//   while(left <= right) {
+//     let mid = Math.floor((left+right)  / 2);
+//     if(nums[mid] === target) {
+//       return mid;
+//     }
+
+//     if(nums[mid] > target) {
+//       right = mid - 1;
+//       if(nums[mid -1] < target || mid -1 < 0) {
+//         return mid;
+//       }
+//     } else if (nums[mid] < target) {
+//       left = mid + 1;
+//       if(nums[mid+1] > target || mid+1 === numsLen) {
+//         return mid +1;
+//       }
+//     }
+//   }
+// };
+
+//优化算法
+var no35_searchInsert = function(nums, target) {
+  let numsLen = nums.length;
+  let left = 0, right = numsLen - 1;
+  if(numsLen === 0) {
+    return 1;
+  }
+  while(left <= right) {
+    let mid = Math.floor((left+right)  / 2);
+    if(nums[mid] === target) {
+      return mid;
+    } else if(nums[mid] > target) {
+      right = mid - 1;
+    } else if (nums[mid] < target) {
+      left = mid + 1;
+    }
+  }
+  return left;
+};
+
+// console.log('no35_searchInsert', no35_searchInsert([1,3,5,6], 2))
+
+// TODO：✅==========================================================
+/* 36. 有效的数独
+请你判断一个 9 x 9 的数独是否有效。只需要 根据以下规则 ，验证已经填入的数字是否有效即可。
+
+数字 1-9 在每一行只能出现一次。
+数字 1-9 在每一列只能出现一次。
+数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。（请参考示例图）
+ 
+注意：
+一个有效的数独（部分已被填充）不一定是可解的。
+只需要根据以上规则，验证已经填入的数字是否有效即可。
+空白格用 '.' 表示。 */
+
+var no36_isValidSudoku = function(board) {
+  let row = {}; 
+  let col = new Array(9);
+  let box = {};
+  for(let i = 0;i < 9;i++){
+    // row[i] = new Array(10).fill(0);
+    col[i] = new Array(10).fill(0);
+    // box[i] = new Array(10).fill(0);
+  }
+  console.log('col', col)
+
+  for(let i = 0; i < 9; i++) {
+    row = {};
+    for(let j = 0; j < 9; j++) {
+      if(board[i][j] == '.') continue;
+      let num = Number(board[i][j]);
+      if(row[num]) {
+        return false;
+      } else {
+        row[num] = 1;
+      }
+      if(col[j][num]) {
+        return false;
+      } else {
+        col[j][num] = 1;
+      }
+    }
+  }
+
+  return true;
+};
+
+
+let board = 
+[["5","3",".",".","7",".",".",".","."]
+,["6",".",".","1","9","5",".",".","."]
+,[".","9","8",".",".",".",".","6","."]
+,["8",".",".",".","6",".",".",".","3"]
+,["4",".",".","8",".","3",".",".","1"]
+,["7",".",".",".","2",".",".",".","6"]
+,[".","6",".",".",".",".","2","8","."]
+,[".",".",".","4","1","9",".",".","5"]
+,[".",".",".",".","8",".",".","7","9"]]
+
+console.log('no36_isValidSudoku', no36_isValidSudoku(board))
 
 
 // TODO：✅==========================================================
