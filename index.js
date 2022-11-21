@@ -453,10 +453,10 @@ var removeNthFromEnd = function(head, n) {
     headLen ++;
     newHead = newHead.next;
   }
-  console.log('headlengf', headLen, newHead, 'res', res.next)
+  // console.log('headlengf', headLen, newHead, 'res', res.next)
 };
 
-console.log('no.19-removeNthFromEnd', removeNthFromEnd([1,2,3,4,5], 2))
+// console.log('no.19-removeNthFromEnd', removeNthFromEnd([1,2,3,4,5], 2))
 
 // TODO：✅==========================================================
 /* no.17 电话号码字母组合 
@@ -754,7 +754,7 @@ var no24_swapPairs = function(head) {
 // TODO：✅==========================================================
 // 206. 反转链表
 // 递归效率低
-var no206_reverse = (head) => {
+/* var no206_reverse = (head) => {
   if(head == null || head.next == null){
     return head;
   }
@@ -763,6 +763,18 @@ var no206_reverse = (head) => {
   head.next = null;
 
   return newList;
+} */
+
+var no206_reverse = (head) => {
+  let pre = null;
+  let cur = head;
+  while(cur) {
+    let next = cur.next;
+    cur.next = pre;
+    pre = cur;
+    cur = next;
+  }
+  return pre;
 }
 
 // TODO：==========================================================
@@ -792,6 +804,7 @@ var no25_reverseKGroup = function(head, k) {
 };
 
 let no25 = makeList1([1,2,3,4,5])
+console.log('no206_reverse', no206_reverse(no25))
 
 
 // TODO：✅==========================================================
