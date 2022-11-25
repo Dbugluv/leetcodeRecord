@@ -8,25 +8,40 @@
         加入定时器：<input type="text" id="throttle"/>
     </div>
     <script type="text/javascript" src="./index.js"></script>
+    <script type="text/javascript" src="./avalon.js"></script>
     <script>
         window.onload = () => {
             function ajax (data) {
                 console.log(new Date().toLocaleTimeString() + ' - ' + data)
             }
 
-            function throttle (fn, delay) {
-                return args => {
-                    if (fn.id) return
+            // function throttle (fn, delay) {
+            //     return args => {
+            //         if (fn.id) return
 
-                    fn.id = setTimeout(() => {
-                        fn.call(this, args)
-                        clearTimeout(fn.id)
-                        fn.id = null
-                    }, delay)
+            //         fn.id = setTimeout(() => {
+            //             fn.call(this, args)
+            //             clearTimeout(fn.id)
+            //             fn.id = null
+            //         }, delay)
+            //     }
+            // }
+            function throttle (fn, delay) {
+                let last = 0;
+
+                return function(args) {
+                    let now = + Date.now();
+                    if(now >= last + delay) {
+                        fn(args);
+                        last = now;
+                        console.log('OK!')
+                    } else {
+                        console.log('还没到时间捏～')
+                    }
                 }
             }
 
-            const throttleAjax = throttle(ajax, 1000)
+            const throttleAjax = throttle(ajax, 3000)
 
             document.querySelector('#throttle').addEventListener('keyup', e => {
                 throttleAjax(e.target.value)
