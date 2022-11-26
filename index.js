@@ -1210,13 +1210,11 @@ var no35_searchInsert = function(nums, target) {
 var no36_isValidSudoku = function(board) {
   let row = {}; 
   let col = new Array(9);
-  let box = {};
+  let box = new Array(9);
   for(let i = 0;i < 9;i++){
-    // row[i] = new Array(10).fill(0);
     col[i] = new Array(10).fill(0);
-    // box[i] = new Array(10).fill(0);
+    box[i] = new Array(10).fill(0);
   }
-  console.log('col', col)
 
   for(let i = 0; i < 9; i++) {
     row = {};
@@ -1233,6 +1231,12 @@ var no36_isValidSudoku = function(board) {
       } else {
         col[j][num] = 1;
       }
+      let curBox = Math.floor(j/3) + Math.floor(i/3)*3
+      if(box[curBox][num]) {
+        return false;
+      } else {
+        box[curBox][num] = 1;
+      }
     }
   }
 
@@ -1241,18 +1245,150 @@ var no36_isValidSudoku = function(board) {
 
 
 let board = 
-[["5","3",".",".","7",".",".",".","."]
+[["8","3",".",".","7",".",".",".","."]
 ,["6",".",".","1","9","5",".",".","."]
-,[".","9","8",".",".",".",".","6","."]
-,["8",".",".",".","6",".",".",".","3"]
+,[".","9","2",".",".",".",".","6","."]
+,["1",".",".",".","6",".",".",".","3"]
 ,["4",".",".","8",".","3",".",".","1"]
 ,["7",".",".",".","2",".",".",".","6"]
 ,[".","6",".",".",".",".","2","8","."]
 ,[".",".",".","4","1","9",".",".","5"]
 ,[".",".",".",".","8",".",".","7","9"]]
 
-console.log('no36_isValidSudoku', no36_isValidSudoku(board))
 
+// console.log('no36_isValidSudoku', no36_isValidSudoku(board))
+
+// TODO：✅==========================================================
+// 46. 全排列
+/* 给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
+输入：nums = [1,2,3]
+输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]] */
+
+var no46_backtracking = (nums, path, used, length, finalRes) => {
+  if(path.length === length) {
+    finalRes.push([...path])  // 因为path一直在变化
+  }
+
+  for(let i = 0; i < nums.length; i++) {
+    if(used[i]) continue
+    path.push(nums[i])
+    used[i] = true
+    backtracking(nums, path, used, length, finalRes)
+    path.pop();
+    used[i] = false;
+  }
+}
+
+var no46_permute = function(nums) {
+  let finalRes = [];
+  let numsLen = nums.length;
+  no46_backtracking(nums, [], [], numsLen, finalRes)
+
+  return finalRes; 
+};
+// console.log('no46_permute', no46_permute([1,2,3]))
+
+// TODO：✅==========================================================
+// 47. 全排列
+/* 给定一个含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
+输入：nums = [1,1,2]
+输出：
+[[1,1,2],
+  [1,2,1],
+ [2,1,1]] */
+
+var no47_permuteUnique = function(nums) {
+  nums = nums.sort((a, b) => a - b)
+  let finalRes = [];
+  let numsLen = nums.length;
+  let path = [];
+  let used = []
+
+  function backtracking() {
+    if(path.length === numsLen) {
+      finalRes.push([...path])
+    }
+  
+    for(let i = 0; i < nums.length; i++) {
+      if(used[i]) continue
+      if((i > 0 && nums[i] === nums[i-1]) && !used[i-1]) continue  // ❗️同树枝层去重
+      path.push(nums[i])
+      used[i] = true;
+      backtracking()
+      path.pop()
+      used[i] = false;
+    }
+  }
+
+  backtracking(numsLen)
+
+  return finalRes;
+};
+
+// console.log('no47_permuteUnique', no47_permuteUnique([3,3,0,3]))
+
+// TODO：✅==========================================================
+// 77. 组合
+/* 给定两个整数 n 和 k，返回范围 [1, n] 中所有可能的 k 个数的组合。
+你可以按 任何顺序 返回答案。
+输入：n = 4, k = 2
+输出：
+[
+  [2,4],
+  [3,4],
+  [2,3],
+  [1,2],
+  [1,3],
+  [1,4],
+] */
+
+var no77_combine = function(n, k) {
+  let finalRes = [];
+  let path = [];
+  let used = [];
+
+  function backtracking(begin) {
+    if(path.length === k) {
+      finalRes.push([...path])
+    }
+    for(let i = begin; i <= n && (n + path.length - k) + 1; i ++) {
+      if(used[i]) continue;
+      path.push(i);
+      used[i] = true;
+      backtracking(i+1, n)
+      path.pop();
+      used[i] = false;
+    }
+  }
+
+  backtracking(1);
+
+  return finalRes
+};
+
+// console.log('no77_combine', no77_combine(4, 4))
+
+
+// TODO：==========================================================
+//39. 组合总和
+/* 给你一个 无重复元素 的整数数组 candidates 和一个目标整数 target ，找出 candidates 中可以使数字和为目标数 target 的 所有 不同组合 ，
+并以列表形式返回。你可以按 任意顺序 返回这些组合。
+candidates 中的 同一个 数字可以 无限制重复被选取 。如果至少一个数字的被选数量不同，则两种组合是不同的。 
+对于给定的输入，保证和为 target 的不同组合数少于 150 个。
+
+示例 1：
+输入：candidates = [2,3,6,7], target = 7
+输出：[[2,2,3],[7]]
+解释：
+2 和 3 可以形成一组候选，2 + 2 + 3 = 7 。注意 2 可以使用多次。
+7 也是一个候选， 7 = 7 。
+仅有这两种组合。 */
+
+var no39_combinationSum = function(candidates, target) {
+
+};
+
+// console.log('no39_combinationSum', no39_combinationSum(4, 4))
 
 // TODO：✅==========================================================
 // 82. 删除排序链表中的重复元素 II
