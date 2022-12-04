@@ -1495,28 +1495,193 @@ var no40_combinationSum2 = function(candidates, target) {
 //   }
 //   return res.next;
 // };
-
-
-var no82_deleteDuplicates = function(head) {
-  if(!head || !head.next) {
-    return head;
-  }
-  let savePoint = head;
-  let repetition;
-  while(head) {
-    if((head.next && (head.val === head.next.val)) || (head.val === repetition)) {
-      repetition = head.val;
-    }
-    head.next = head.next.next;
-  }
-  return savePoint.next;
-};
+// var no82_deleteDuplicates = function(head) {
+//   if(!head || !head.next) {
+//     return head;
+//   }
+//   let savePoint = head;
+//   let repetition;
+//   while(head) {
+//     if((head.next && (head.val === head.next.val)) || (head.val === repetition)) {
+//       repetition = head.val;
+//     }
+//     head.next = head.next.next;
+//   }
+//   return savePoint.next;
+// };
 
 // let test1 = makeList1([1,1,1,2,3,3,4,5,6])
 // console.log('no82_deleteDuplicates', no82_deleteDuplicates(test1))
 
 
+// TODO：✅==========================================================
+// 41. 缺失的第一个正数
+/* 给你一个未排序的整数数组 nums ，请你找出其中没有出现的最小的正整数。
+请你实现时间复杂度为 O(n) 并且只使用常数级别额外空间的解决方案。 
+输入：nums = [1,2,0]
+输出：3
+
+输入：nums = [3,4,-1,1]
+输出：2
+*/
+
+var no41_firstMissingPositive = function(nums) {
+  let numsLen = nums.length;
+  for(let i = 0; i < numsLen ; i++) {
+    while(nums[i] < numsLen && nums[i] !==  nums[nums[i] - 1]  && nums[i] > 0) {
+      swap(nums, i , nums[i] - 1);
+    }
+  }
+
+  function swap(arr, indexOne, indexTwo) {
+    let temp = arr[indexOne];
+    arr[indexOne] = arr[indexTwo]
+    arr[indexTwo] = temp;
+  }
+  for(let i = 0; i < numsLen ; i++) {
+    if(i + 1 !== nums[i]) {
+      return i+1;
+    }
+  }
+
+  return nums[numsLen-1] + 1;
+};
+
+// console.log('no41_firstMissingPositive', no41_firstMissingPositive([1,1]))
+
+// TODO：✅==========================================================
+/* 42. 接雨水
+给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。 
+输入：height = [0,1,0,2,1,0,1,3,2,1,2,1]
+输出：6
+解释：上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。 
+*/
+
+var no42_trap = function(height) {
+  let sum = 0, max_left = new Array(height.length).fill(0), max_right = new Array(height.length).fill(0);
+  //最两端的列不用考虑，因为一定不会有水。所以下标从 1 到 length - 2
+  //找出左边最高
+  for (let i = 1; i < height.length - 1; i++) {
+    max_left[i] = Math.max(max_left[i - 1], height[i - 1]);
+  }
+  for (let i = height.length - 2; i >= 0; i--) {
+    max_right[i] = Math.max(max_right[i + 1], height[i + 1]);
+  }
+  for ( i = 1; i < height.length - 1; i++) {
+    //找出两端较小的
+    min = Math.min(max_left[i], max_right[i]);
+    //只有较小的一段大于当前列的高度才会有水，其他情况不会有水
+    if (min > height[i]) {
+        sum = sum + (min - height[i]);
+    }
+  }
+  return sum;
+};
+// console.log('no42_trap', no42_trap([0,1,0,2,1,0,1,3,2,1,2,1]))
+
+
 // TODO：==========================================================
+/* 43. 字符串相乘
+注意：不能使用任何内置的 BigInteger 库或直接将输入转换为整数。
+给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，它们的乘积也表示为字符串形式。
+输入: num1 = "2", num2 = "3"
+输出: "6"
+输入: num1 = "123", num2 = "456"
+输出: "56088"
+*/
+
+var no43_multiply = function(num1, num2) {
+  let sum = 0;
+
+  return sum
+};
+// console.log('no43_multiply', no43_multiply("23", "3"))
+
+// TODO：❗️==========================================================
+/* 45. 跳跃游戏 II
+给你一个非负整数数组 nums ，你最初位于数组的第一个位置。
+数组中的每个元素代表你在该位置可以跳跃的最大长度。
+你的目标是使用最少的跳跃次数到达数组的最后一个位置。
+假设你总是可以到达数组的最后一个位置。
+ 
+示例 1:
+输入: nums = [2,3,1,1,4]
+输出: 2
+解释: 跳到最后一个位置的最小跳跃数是 2。
+     从下标为 0 跳到下标为 1 的位置，跳 1 步，然后跳 3 步到达数组的最后一个位置。
+输入: nums = [2,3,0,1,4]
+输出: 2
+ */
+
+var no45_jump = function(nums) {
+  let cnt = 0;
+  let maxDis = 0;
+  let end = 0;
+  for(let i = 0;i < nums.length - 1; i++) {
+    maxDis = Math.max(maxDis, nums[i]+i)
+    if(i === end) { // 走到最大距离需要跳跃了
+      end = maxDis
+      cnt++
+    }
+  }
+  return cnt;
+};
+
+// console.log('no45_jump', no45_jump([1,2,3]))
+
+// TODO：✅==========================================================
+//48. 旋转图像
+/* 给定一个 n × n 的二维矩阵 matrix 表示一个图像。请你将图像顺时针旋转 90 度。
+你必须在 原地 旋转图像，这意味着你需要直接修改输入的二维矩阵。
+请不要 使用另一个矩阵来旋转图像。
+输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[[7,4,1],[8,5,2],[9,6,3]]
+ */
+
+var no48_rotate = function(matrix) {
+  let n = matrix.length;
+  let mid = Math.floor(matrix.length / 2);
+  for(let i = 0; i < mid; i++) {
+    for(let j = i; j < n-1-i; j++) {
+      let temp = matrix[i][j];
+      matrix[i][j] = matrix[n-j-1][i];  // 左下角覆盖左上角
+      matrix[n-j-1][i] = matrix[n-i-1][n-j-1];  // 右下角盖左下角
+      matrix[n-i-1][n-j-1] = matrix[j][n-i-1]; // 右上角盖右下角
+      matrix[j][n-i-1] = temp
+    }
+  }
+  return matrix
+};
+// console.log('no48', no48_rotate([[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]))
+// console.log('no48', no48_rotate([[1,2,3],[4,5,6],[7,8,9]]))
+
+// TODO：==========================================================
+//49. 字母异位词分组
+/* 给你一个字符串数组，请你将 字母异位词 组合在一起。可以按任意顺序返回结果列表。
+字母异位词 是由重新排列源单词的字母得到的一个新单词，所有源单词中的字母通常恰好只用一次。
+输入: strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
+输出: [["bat"],["nat","tan"],["ate","eat","tea"]]
+ */
+
+var no49_groupAnagrams = function(strs) {
+  const map = new Map();
+  for( let str of strs) {
+    let array = [...str];
+    array.sort();
+    let key = array.join('');
+    let list = map.get(key) ? map.get(key) : new Array;
+    list.push(str);
+    map.set(key, list)
+  }
+  return [...map.values()]
+};
+
+
+
+console.log('no49_groupAnagrams', no49_groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"]))
+// console.log('no49_groupAnagrams', no49_groupAnagrams(["ddddddddddg","dgggggggggg"]))
+
+// TODO：✅==========================================================
 // 83. 删除排序链表中的重复元素
 
 var no83_deleteDuplicates = function(head) {
@@ -1550,3 +1715,5 @@ var no83_deleteDuplicates = function(head) {
 }; */
 // let test1 = makeList1([1,1,1,2,3,3,4,5,6])
 // console.log('no83_deleteDuplicates', no83_deleteDuplicates(test1))
+
+
