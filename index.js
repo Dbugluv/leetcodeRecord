@@ -1273,7 +1273,7 @@ var no46_backtracking = (nums, path, used, length, finalRes) => {
     if(used[i]) continue
     path.push(nums[i])
     used[i] = true
-    backtracking(nums, path, used, length, finalRes)
+    no46_backtracking(nums, path, used, length, finalRes)
     path.pop();
     used[i] = false;
   }
@@ -1369,7 +1369,7 @@ var no77_combine = function(n, k) {
 // console.log('no77_combine', no77_combine(4, 4))
 
 
-// TODO：==========================================================
+// TODO：✅==========================================================
 //39. 组合总和
 /* 给你一个 无重复元素 的整数数组 candidates 和一个目标整数 target ，找出 candidates 中可以使数字和为目标数 target 的 所有 不同组合 ，
 并以列表形式返回。你可以按 任意顺序 返回这些组合。
@@ -1385,10 +1385,86 @@ candidates 中的 同一个 数字可以 无限制重复被选取 。如果至�
 仅有这两种组合。 */
 
 var no39_combinationSum = function(candidates, target) {
+  candidates = candidates.sort((a, b) => a - b)
+  let finalRes = [];
+  let path = [];
+  let sum = 0
 
+  function backtracking(start) {
+    if(sum === target) {
+      finalRes.push([...path])
+      return
+    }
+    if(sum > target) {
+      return
+    }
+
+    for(let i = start; i < candidates.length; i ++) {
+      if(candidates[i] + sum > target) {
+        break
+      }
+      path.push(candidates[i])
+      sum += candidates[i]
+      backtracking(i+1)
+      sum -= candidates[i]
+      path.pop()
+    }
+  }
+
+  backtracking(0);
+  return finalRes;
 };
 
-// console.log('no39_combinationSum', no39_combinationSum(4, 4))
+// console.log('no39_combinationSum', no39_combinationSum([2,3,6,7], 7))
+
+// TODO：==========================================================
+// 40. 组合总和 II
+/* 给定一个候选人编号的集合 candidates和一个目标数 target，找出 candidates中所有可以使数字和为 target 的组合。
+candidates 中的每个数字在每个组合中只能使用 一次 。
+注意：解集不能包含重复的组合。 
+
+示例 1:
+输入: candidates = [10,1,2,7,6,1,5], target = 8,
+输出:
+[
+[1,1,6],
+[1,2,5],
+[1,7],
+[2,6]
+] */
+
+var no40_combinationSum2 = function(candidates, target) {
+  candidates = candidates.sort((a, b) => a - b);
+  let finalRes = []
+  let path = []
+  let sum = 0;
+  let used = [];
+
+  function backtracking(start) {
+    if(sum === target) {
+      finalRes.push([...path]);
+      return
+    }
+
+    for(let i = start; i < candidates.length; i ++) {
+      if(candidates[i] + sum > target) break
+      if(used[i] || (candidates[i] === candidates[i-1] && !used[i-1] && i > 0)) continue
+      path.push(candidates[i])
+      sum+=candidates[i]
+      used[i] = true
+      backtracking(i+1)
+      path.pop()
+      sum-=candidates[i]
+      used[i] = false
+    }
+  }
+
+  backtracking(0)
+  return finalRes
+};
+
+// console.log('no40_combinationSum2', no40_combinationSum2([10,1,2,7,6,1,5], 8))
+
 
 // TODO：✅==========================================================
 // 82. 删除排序链表中的重复元素 II
