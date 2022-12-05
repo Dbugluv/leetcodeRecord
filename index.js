@@ -1602,8 +1602,123 @@ var no49_groupAnagrams = function(strs) {
 
 
 
-console.log('no49_groupAnagrams', no49_groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"]))
+// console.log('no49_groupAnagrams', no49_groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"]))
 // console.log('no49_groupAnagrams', no49_groupAnagrams(["ddddddddddg","dgggggggggg"]))
+
+// TODO： ✅==========================================================
+//53. 最大子数组和
+/* 给你一个整数数组 nums ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+子数组 是数组中的一个连续部分。
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出：6
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6 
+ */
+
+var no53_maxSubArray = function(nums) {
+  let pre = 0;
+  let res = nums[0]
+
+  for(let i = 0; i < nums.length; i ++) {
+    pre = Math.max(nums[i], pre+nums[i])
+    res = Math.max(res, pre)
+  }
+
+  return res;
+};
+
+// console.log('no53_maxSubArray', no53_maxSubArray([-2,-1,-3,-4,-1,-2,-1,-5]))
+
+//TODO：CV
+// 54.螺旋矩阵
+// 给你一个 m 行 n 列的矩阵 matrix ，请按照 顺时针螺旋顺序 ，返回矩阵中的所有元素。
+/* 输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[1,2,3,6,9,8,7,4,5] */
+
+var no54_spiralOrder = function(matrix) {
+    if (!matrix.length || !matrix[0].length) {
+        return [];
+    }
+
+    const rows = matrix.length, columns = matrix[0].length;
+    const order = [];
+    let left = 0, right = columns - 1, top = 0, bottom = rows - 1;
+    while (left <= right && top <= bottom) {
+        for (let column = left; column <= right; column++) {
+            order.push(matrix[top][column]);
+        }
+        for (let row = top + 1; row <= bottom; row++) {
+            order.push(matrix[row][right]);
+        }
+        if (left < right && top < bottom) {
+            for (let column = right - 1; column > left; column--) {
+                order.push(matrix[bottom][column]);
+            }
+            for (let row = bottom; row > top; row--) {
+                order.push(matrix[row][left]);
+            }
+        }
+        [left, right, top, bottom] = [left + 1, right - 1, top + 1, bottom - 1];
+    }
+    return order;
+
+};
+
+// console.log('no54_spiralOrder', no54_spiralOrder([[1,2,3],[4,5,6],[7,8,9]]))
+
+// TODO：✅==========================================================
+/* 55. 跳跃游戏
+给定一个非负整数数组 nums ，你最初位于数组的 第一个下标 。
+数组中的每个元素代表你在该位置可以跳跃的最大长度。
+判断你是否能够到达最后一个下标。 
+输入：nums = [2,3,1,1,4]
+输出：true
+解释：可以先跳 1 步，从下标 0 到达下标 1, 然后再从下标 1 跳 3 步到达最后一个下标
+*/
+var no55_canJump = function(nums) {
+  let maxDis = nums[0];
+  let end = 0;
+  let numsLen = nums.length;
+  for(let i = 0;i < nums.length - 1; i++) {
+    maxDis = Math.max(maxDis, nums[i] + i);
+    if(i === end) {
+      end = maxDis
+    }
+    if(end >= numsLen - 1) {
+      return true
+    }
+  }
+
+  return end >= numsLen - 1;
+};
+// console.log('no55_canJump', no55_canJump([2,3,1,1,4]))
+
+// TODO：✅==========================================================
+/* 56. 合并区间
+以数组 intervals 表示若干个区间的集合，其中单个区间为 intervals[i] = [starti, endi] 。
+请你合并所有重叠的区间，并返回 一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间 。
+示例 1：
+输入：intervals = [[1,3],[2,6],[8,10],[15,18]]
+输出：[[1,6],[8,10],[15,18]]
+解释：区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6]. */
+var no56_merge = function(intervals) {
+  let i = 0;
+  intervals = intervals.sort((a, b) => a[0]+a[1] - b[0]-b[1])
+  while( i + 1 < intervals.length ) {
+    let first = intervals[i]
+    let second = intervals[i+1]
+    if(second[0] > first[1]) {
+      i++;
+    } else {
+      let temp = [...first, ...second]
+      intervals[i] = [Math.min(...temp), Math.max(...temp)]
+      intervals.splice(i+1,1);
+      i = 0;
+    }
+  }
+  return intervals;
+};
+// console.log('no56_merge', no56_merge([[1,4],[0,0]]))
+
 
 // TODO：✅==========================================================
 // 83. 删除排序链表中的重复元素
