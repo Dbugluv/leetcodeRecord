@@ -1600,8 +1600,6 @@ var no49_groupAnagrams = function(strs) {
   return [...map.values()]
 };
 
-
-
 // console.log('no49_groupAnagrams', no49_groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"]))
 // console.log('no49_groupAnagrams', no49_groupAnagrams(["ddddddddddg","dgggggggggg"]))
 
@@ -1719,6 +1717,179 @@ var no56_merge = function(intervals) {
 };
 // console.log('no56_merge', no56_merge([[1,4],[0,0]]))
 
+// TODO：✅==========================================================
+/* 57. 插入区间
+给你一个 无重叠的 ，按照区间起始端点排序的区间列表。
+在列表中插入一个新的区间，你需要确保列表中的区间仍然有序且不重叠（如果有必要的话，可以合并区间）。
+
+intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+输出：[[1,2],[3,10],[12,16]]
+*/
+
+var no57_insert = function(intervals, newInterval) {
+  intervals = [...intervals, newInterval].sort((a, b) => a[0] - b[0])
+  let i = 0;
+  while( i + 1 < intervals.length ) {
+    let first = intervals[i]
+    let second = intervals[i+1]
+    if(second[0] > first[1]) {
+      i++;
+    } else {
+      let temp = [...first, ...second]
+      intervals[i] = [Math.min(...temp), Math.max(...temp)]
+      intervals.splice(i+1,1);
+      i = 0;
+    }
+  }
+  return intervals;
+};
+// console.log('no57_insert', no57_insert([[1,2],[3,5],[6,7],[8,10],[12,16]], [4,8]))
+
+// TODO：✅==========================================================
+// 58. 最后一个单词的长度
+var no58_lengthOfLastWord = function(s) {
+  s = s.trim()
+  let i = s.length - 1;
+  let cnt = 0;
+  while(s.charAt(i) !== ' ' && i >= 0) {
+    cnt++;
+    i--;
+  }
+  return cnt
+};
+
+// console.log('no58_lengthOfLastWord', no58_lengthOfLastWord("a"))
+
+// TODO：✅==========================================================
+// 59. 螺旋矩阵 II
+/* 给你一个正整数 n ，生成一个包含 1 到 n2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+输入：n = 3
+输出：[[1,2,3],[8,9,4],[7,6,5]] */
+
+var no59_generateMatrix = function(n) {
+  let res = new Array(n);
+  let num = 0;
+  for(let i = 0; i < n; i++) {
+    res[i] = new Array(n);
+  }
+  let [left, right, top, bottom] = [0, n-1, 0, n-1]
+
+  while(left<=right && top <= bottom) {
+    for(let i = left; i <= right; i++) {
+      res[top][i] = ++num;
+    }
+
+    for(let i = top + 1; i <= bottom; i++) {
+      res[i][right] = ++num;
+    }
+
+    for(let i = right - 1; i >= left; i--) {
+      res[bottom][i] = ++num;
+    }
+
+    for(let i = bottom - 1; i >= top + 1; i--) {
+      res[i][left] = ++num;
+    }
+    [left, right, top, bottom] = [left+1, right-1, top+1, bottom-1]
+  }
+  return res;
+};
+
+// console.log('no59_generateMatrix', no59_generateMatrix(5))
+
+var no58_lengthOfLastWord = function(s) {
+  s = s.trim()
+  let i = s.length - 1;
+  let cnt = 0;
+  while(s.charAt(i) !== ' ' && i >= 0) {
+    cnt++;
+    i--;
+  }
+  return cnt
+};
+
+// TODO：✅==========================================================
+/* 60. 排列序列
+给出集合 [1,2,3,...,n]，其所有元素共有 n! 种排列。
+按大小顺序列出所有排列情况，并一一标记，当 n = 3 时, 所有排列如下：
+"123"
+"132"
+"213"
+"231"
+"312"
+"321"
+给定 n 和 k，返回第 k 个排列。 */
+var no60_getPermutation = function(n, k) {
+  let res = []
+  let path = ''
+  let used = []
+  
+  function backtracking() {
+    if(res.length === k) {
+      return res[k-1]
+    }
+    if(path.length === n) {
+      res.push(path);
+    }
+    for(let i = 1; i <= n; i++) {
+      if(used[i]) continue
+      path += i + ''
+      used[i] = true
+      backtracking()
+      path = path.slice(0, -1)
+      used[i] = false
+    }
+  }
+
+  backtracking();
+  return res[k-1];
+};
+
+// console.log('no60_getPermutation', no60_getPermutation(3, 6))
+// TODO：==========================================================
+/* 61. 旋转链表
+给你一个链表的头节点 head ，旋转链表，将链表每个节点向右移动 k 个位置。
+输入：head = [1,2,3,4,5], k = 2
+输出：[4,5,1,2,3]
+*/
+var no61_rotateRight = function(head, k) {
+  
+  if(!head || !head.next) {
+    return head;
+  }
+  let n = 0;
+  let res;
+  let newHead = head
+  
+  while(newHead) {
+    newHead = newHead.next;
+    n ++;
+  };
+
+  k = n - k % n;
+
+  let copyList = new ListNode(0);
+  res = copyList;
+  let tempHead = new ListNode(0);
+  let temp = tempHead;
+  while(head) {
+    if(k > 0) {
+      tempHead.next = new ListNode(head.val)
+      tempHead = tempHead.next;
+      k--;
+    } else {
+      copyList.next = head;
+      copyList = copyList.next
+    }
+    head = head.next;
+    n++;
+  }
+  copyList.next = temp.next;
+  
+  return res.next
+};
+let no61_list = makeList1([1,2,3,4,5])
+// console.log('no61_rotateRight', no61_rotateRight(no61_list, 12))
 
 // TODO：✅==========================================================
 // 83. 删除排序链表中的重复元素
