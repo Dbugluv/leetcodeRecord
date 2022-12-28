@@ -970,7 +970,7 @@ var no29_divide = function(dividend, divisor) {
 
 // console.log('no29_divide', no29_divide(-2147483648, 2))
 
-// TODO：待定==========================================================
+// TODO：✅==========================================================
 /* 30. 串联所有单词的子串
 给定一个字符串 s 和一个字符串数组 words。 words 中所有字符串 长度相同。
  s 中的 串联子串 是指一个包含  words 中所有字符串以任意顺序排列连接起来的子串。
@@ -982,13 +982,85 @@ var no29_divide = function(dividend, divisor) {
 // 输入：s = "barfoothefoobarman", words = ["foo","bar"]
 // 输出：[0,9]
 // 解释：因为 words.length == 2 同时 words[i].length == 3，连接的子字符串的长度必须为 6。
-// 子串 "barfoo" 开始位置是 0。它是 words 中以 ["bar","foo"] 顺序排列的连接。
-// 子串 "foobar" 开始位置是 9。它是 words 中以 ["foo","bar"] 顺序排列的连接。
-// 输出顺序无关紧要。返回 [9,0] 也是可以的。
 
 var no30_findSubstring = function(s, words) {
+  let wordsMap = new Map()
+  let wordsLen = words[0].length;
+  let wordSum = words.length*wordsLen
+  let finalRes = []
+  for(let i in words) {
+    wordsMap.set(words[i], wordsMap.has(words[i]) ? wordsMap.get(words[i])+1 : 1)
+  }
 
+  for(let i = 0; i < s.length - wordSum + 1; i ++) {
+    let cnt = 0;
+    let begin = i;
+    let subMap = new Map()
+    while(cnt !== words.length) {
+      let subStr = s.slice(begin, begin+wordsLen)
+      if(wordsMap.get(subStr) && (subMap.get(subStr) < wordsMap.get(subStr) || !subMap.get(subStr))) {
+        subMap.set(subStr, (subMap.has(subStr) ? (subMap.get(subStr) + 1) : 1))
+        begin+=wordsLen
+        cnt+=1
+      } else {
+        break
+      }
+    }
+    if(cnt === words.length) {
+      finalRes.push(i)
+    }
+  }
+
+  return finalRes
 };
+// console.log('no30_findSubstring', no30_findSubstring("a", ["a", "a"]))
+
+// TODO：==========================================================
+/* 76. 最小覆盖子串
+输入：s = "ADOBECODEBANC", t = "ABC"
+输出："BANC"
+解释：最小覆盖子串 "BANC" 包含来自字符串 t 的 'A'、'B' 和 'C'。 */
+
+var no76_minWindow = function(s, t) {
+  let result = ''
+  let slen = s.length
+  let tMap = new Map()
+  if(t.length === 1) {
+    return s.indexOf(t) === -1 ? '' : t;
+  }
+  if(t.length > s.length || s.length === 0) {
+    return '';
+  }
+
+  for(let i in t) {
+    tMap.set(t[i], (tMap.get(t[i]) || 0) + 1)
+  }
+  let i = 0;
+  while(i < slen) {
+    let sMap = new Map()
+    let cnt = 0
+    if(t.indexOf(s[i]) !== -1) {
+      let begin = i;
+      while(begin < slen && cnt < t.length) {
+        let subStr = s[begin]
+        if(tMap.get(subStr) && ((sMap.get(subStr) || 0) < tMap.get(subStr))) {
+          sMap.set(subStr, (sMap.get(subStr) || 0) + 1)
+          cnt++
+        }
+
+        begin++
+      }
+      if(cnt === t.length) {
+        result = ((begin - i - 1 < result.length) || result.length === 0 ) ? s.slice(i, begin) : result
+      }
+    }
+
+    i++
+  }
+
+  return result
+};
+// console.log('no76', no76_minWindow('ADOBECODEBANC', 'ABC'))
 
 // TODO：❗️抄的==========================================================
 // 31. 下一个排列
@@ -1389,6 +1461,40 @@ var no39_combinationSum = function(candidates, target) {
 };
 
 // console.log('no39_combinationSum', no39_combinationSum(4, 4))
+// TODO：✅==========================================================
+//78. 子集
+// 解集 不能 包含重复的子集。你可以按 任意顺序 返回解集。
+/* 输入：nums = [1,2,3]
+输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]] */
+
+var no78_subsets = function(nums) {
+  let finalRes = []
+  let curCnt = 0;
+  let numsLen = nums.length
+  let path = []
+  let used = []
+  function backtracking(begin) {
+    if(path.length === curCnt) {
+      finalRes.push([...path])
+    }
+
+    for(let i = begin;i < numsLen; i++) {
+      if(used[i]) continue
+      used[i] = true
+      path.push(nums[i])
+      backtracking(i+1)
+      used[i] = false
+      path.pop()
+    }
+  }
+  while(curCnt <= numsLen) {
+    backtracking(0)
+    curCnt++
+  }
+
+  return finalRes
+};
+// console.log('no78_subsets', no78_subsets([1,2,3]))
 
 // TODO：✅==========================================================
 // 82. 删除排序链表中的重复元素 II
@@ -1891,6 +1997,260 @@ var no61_rotateRight = function(head, k) {
 let no61_list = makeList1([1,2,3,4,5])
 // console.log('no61_rotateRight', no61_rotateRight(no61_list, 12))
 
+//✅DP
+var no62_uniquePaths = function(m, n) {
+  const arr = new Array();
+  for(let i = 0; i < m; i++) {
+    arr[i] = new Array();
+    for(let j = 0; j < n; j++) {
+      if(i === 0) {
+        arr[i][j] = 1;
+      } else if(j === 0) {
+        arr[i][j] = 1;
+      } else {
+        arr[i][j] = 0;
+      }
+    }
+  }
+
+
+  for(let i = 1; i < m; i++) {
+      for(let j = 1; j < n; j++) {
+          arr[i][j] = arr[i-1][j] + arr[i][j-1];
+      }
+  }
+  return arr[m-1][n-1]
+};
+// console.log('no63_uniquePathsWithObstacles--2', no62_uniquePaths(3,3))
+
+// TODO：✅DP==========================================================
+//63. 不同路径 II
+//那么从左上角到右下角将会有多少条不同的路径？
+
+/* for (int i = 0; i < m && obstacleGrid[i][0] == 0; i++) {
+  dp[i][0] = 1;
+}
+for (int j = 0; j < n && obstacleGrid[0][j] == 0; j++) {
+  dp[0][j] = 1;
+}
+
+for (int i = 1; i < m; i++) {
+  for (int j = 1; j < n; j++) {
+      if (obstacleGrid[i][j] == 0) {
+          dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+      }
+  }
+} */
+
+
+var no63_uniquePathsWithObstacles = function(obstacleGrid) {
+  let r = obstacleGrid.length, c = obstacleGrid[0].length;
+  let dp = new Array(r);
+
+  for (let i = 0; i < r; i++) {
+    dp[i] = new Array(c).fill(0)
+  }
+
+  for (let i = 0; i < r && obstacleGrid[i][0] == 0; i++) {
+    dp[i][0] = 1;
+  }
+
+  for (let j = 0; j < c && obstacleGrid[0][j] == 0; j++) {
+    dp[0][j] = 1;
+  }
+
+  for(let i = 1; i < r; i++) {
+    for(let j = 1; j < c; j++) {
+      dp[i][j] = obstacleGrid[i][j] ? 0 : (dp[i-1][j] + dp[i][j-1]);
+    }
+  }
+  return dp[r-1][c-1]
+};
+
+// console.log('no63_uniquePathsWithObstacles--2', no63_uniquePathsWithObstacles([[0,1,0,0,0],[1,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]]
+//   ))
+
+
+// TODO：✅==========================================================
+//66. 数组加一
+var no66_plusOne = function(digits) {
+  let i = digits.length - 1;
+  while(i >= 0) {
+    if(digits[i] + 1 < 10) {
+      digits[i] = digits[i] + 1
+      return digits
+    } else {
+      digits[i] = 0;
+      i--;
+    }
+  }
+  return [1, ...digits]
+};
+
+// console.log('no66_plusOne', no66_plusOne([1,9,9,9,9]))
+// TODO：✅==========================================================
+//67. 二进制求和
+/* 给你两个二进制字符串 a 和 b ，以二进制字符串的形式返回它们的和。
+输入：a = "1010", b = "1011"
+输出："10101" */
+
+var no67_addBinary = function(a, b) {
+  let i = a.length - 1, j = b.length - 1
+  let res = ''
+  let shouAdd = 0;
+  while(i >= 0 || j >=0) {
+    let num1 = i >=0 ? Number(a.charAt(i)) : 0;
+    let num2 = j >=0 ? Number(b.charAt(j)) : 0;
+    let curRes = num1 + num2 + shouAdd;
+    if(curRes > 1) {
+      res = (curRes === 2 ? '0' : '1') + res
+      shouAdd = 1
+    } else {
+      res = curRes + res
+      shouAdd = 0
+    }
+
+    if(j >= 0) {
+      j --
+    }
+    if(i >= 0) {
+      i --
+    }
+  }
+
+  return shouAdd ? shouAdd + res :res;
+};
+
+// console.log('no67_addBinary', no67_addBinary('11', '1111'))
+
+// TODO：✅==========================================================
+/* 69. x 的平方根 
+给你一个非负整数 x ，计算并返回 x 的 算术平方根 。
+由于返回类型是整数，结果只保留 整数部分 ，小数部分将被 舍去 。
+注意：不允许使用任何内置指数函数和算符，例如 pow(x, 0.5) 或者 x ** 0.5 。
+输入：x = 8
+输出：2
+解释：8 的算术平方根是 2.82842..., 由于返回类型是整数，小数部分将被舍去。 */
+
+var no69_mySqrt = function(x) {
+  let n = 1;
+  while( n*n < x) {
+    n++;
+  } 
+  return n*n === x ? n : n-1;
+};
+// console.log('no69_mySqrt', no69_mySqrt(100))
+
+// TODO：==========================================================
+// 73. 矩阵置零
+/* 给定一个 m x n 的矩阵，如果一个元素为 0 ，则将其所在行和列的所有元素都设为 0 。请使用 原地 算法。
+输入：matrix = [[1,1,1],[1,0,1],[1,1,1]]
+输出：[[1,0,1],[0,0,0],[1,0,1]] */
+var no73_setZeroes = function(matrix) {
+  let m = matrix.length;
+  let n = matrix[0].length;
+  let zero = new Array();
+  for(let i = 0; i < m; i++) {
+    for(let j = 0; j < n; j++) {
+      if(matrix[i][j] === 0) {
+        zero.push([i, j])
+      }
+    }
+  }
+
+  if(zero.length === 0) {
+    return matrix
+  }
+  
+  for(let i in zero) {
+    let [row, col] = zero[i]
+
+    for(let i = 0; i < m; i++) {
+      matrix[i][col] = 0;
+    }
+    for(let j = 0; j < n; j++) {
+      matrix[row][j] = 0;
+    }
+  }
+  return matrix
+};
+// console.log('no73_setZeroes', no73_setZeroes([[0,1,4,3],[3,0,5,2],[1,3,1,5], [1,1,1,1]]))
+
+// TODO：✅==========================================================
+//74. 搜索二维矩阵
+/* 编写一个高效的算法来判断 m x n 矩阵中，是否存在一个目标值。该矩阵具有如下特性：
+
+每行中的整数从左到右按升序排列。
+每行的第一个整数大于前一行的最后一个整数。
+
+输入：matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
+输出：true */
+
+var no74_searchMatrix = function(matrix, target) {
+  let m = matrix.length;
+  let n = matrix[0].length;
+  let i = 0
+  for(i; i < m; i ++) {
+    if(matrix[i][0] > target) {
+      break
+    }
+    if(matrix[i][0] === target) {
+      return true
+    }
+  }
+  i -= 1
+  if(i < 0) return false
+
+  for(let j = 0; j < n; j++) {
+    if(matrix[i][j] === target) return true
+  }
+  return false
+};
+
+// console.log('no74_searchMatrix', no74_searchMatrix([[1]], 0))
+
+// TODO：❌==========================================================
+// 75. 颜色分类
+/* 给定一个包含红色、白色和蓝色、共 n 个元素的数组 nums ，原地对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
+我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色。
+输入：nums = [2,0,2,1,1,0]
+输出：[0,0,1,1,2,2] */
+function merge(left, right) {
+  let res = []
+
+  while(left.length > 0 && right.length > 0) {
+    if(left[0] <= right[0]) {
+      res.push(left[0])
+      left.shift()
+    } else {
+      res.push(right[0])
+      right.shift()
+    }
+  }
+
+  if(left.length) {
+    res = [...res, ...left]
+  }else if(right.length) {
+    res = [...res, ...right]
+  }
+  return res;
+}
+
+var no75_sortColors = function(nums) {
+  let len = nums.length;
+  if(len < 2) {
+    return nums
+  }
+
+  let mid = Math.floor(len/2),
+    left = nums.slice(0, mid),
+    right = nums.slice(mid)
+
+  return merge(no75_sortColors(left), no75_sortColors(right))
+};
+
+// console.log('no75_sortColors', no75_sortColors([2,0,2,1,1,0]))
+
 // TODO：✅==========================================================
 // 83. 删除排序链表中的重复元素
 
@@ -1905,6 +2265,7 @@ var no83_deleteDuplicates = function(head) {
   }
   return head
 };
+
 
 /* var no83_deleteDuplicates = function(head) {
   if(!head || !head.next) {
@@ -1926,4 +2287,18 @@ var no83_deleteDuplicates = function(head) {
 // let test1 = makeList1([1,1,1,2,3,3,4,5,6])
 // console.log('no83_deleteDuplicates', no83_deleteDuplicates(test1))
 
+// TODO：✅==========================================================
+// 88. 合并两个有序数组
+var no88_merge = function(nums1, m, nums2, n) {
+  let i = nums1.length ;
 
+  while (n > 0) {
+    if (m > 0 && nums1[m-1] > nums2[n-1]) {
+      nums1[--i] = nums1[--m]; 
+    }else{
+      nums1[--i] = nums2[--n]; 
+    }
+  }
+};
+
+no88_merge([4,5,6,0,0,0],3,[1,2,3],3)
