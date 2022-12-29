@@ -1029,7 +1029,7 @@ var no29_divide = function(dividend, divisor) {
 
 // console.log('no29_divide', no29_divide(-2147483648, 2))
 
-// TODO：待定==========================================================
+// TODO：✅==========================================================
 /* 30. 串联所有单词的子串
 给定一个字符串 s 和一个字符串数组 words。 words 中所有字符串 长度相同。
  s 中的 串联子串 是指一个包含  words 中所有字符串以任意顺序排列连接起来的子串。
@@ -1041,13 +1041,130 @@ var no29_divide = function(dividend, divisor) {
 // 输入：s = "barfoothefoobarman", words = ["foo","bar"]
 // 输出：[0,9]
 // 解释：因为 words.length == 2 同时 words[i].length == 3，连接的子字符串的长度必须为 6。
-// 子串 "barfoo" 开始位置是 0。它是 words 中以 ["bar","foo"] 顺序排列的连接。
-// 子串 "foobar" 开始位置是 9。它是 words 中以 ["foo","bar"] 顺序排列的连接。
-// 输出顺序无关紧要。返回 [9,0] 也是可以的。
 
 var no30_findSubstring = function(s, words) {
+  let wordsMap = new Map()
+  let wordsLen = words[0].length;
+  let wordSum = words.length*wordsLen
+  let finalRes = []
+  for(let i in words) {
+    wordsMap.set(words[i], wordsMap.has(words[i]) ? wordsMap.get(words[i])+1 : 1)
+  }
 
+  for(let i = 0; i < s.length - wordSum + 1; i ++) {
+    let cnt = 0;
+    let begin = i;
+    let subMap = new Map()
+    while(cnt !== words.length) {
+      let subStr = s.slice(begin, begin+wordsLen)
+      if(wordsMap.get(subStr) && (subMap.get(subStr) < wordsMap.get(subStr) || !subMap.get(subStr))) {
+        subMap.set(subStr, (subMap.has(subStr) ? (subMap.get(subStr) + 1) : 1))
+        begin+=wordsLen
+        cnt+=1
+      } else {
+        break
+      }
+    }
+    if(cnt === words.length) {
+      finalRes.push(i)
+    }
+  }
+
+  return finalRes
 };
+// console.log('no30_findSubstring', no30_findSubstring("a", ["a", "a"]))
+
+// TODO：❗️==========================================================
+/* 72. 编辑距离
+给你两个单词 word1 和 word2， 请返回将 word1 转换成 word2 所使用的最少操作数  。
+
+你可以对一个单词进行如下三种操作：
+插入一个字符
+删除一个字符
+替换一个字符
+输入：word1 = "horse", word2 = "ros"
+输出：3
+解释：
+horse -> rorse (将 'h' 替换为 'r')
+rorse -> rose (删除 'r')
+rose -> ros (删除 'e') 
+
+输入：word1 = "intention", word2 = "execution"
+输出：5
+*/
+
+var no72_minDistance = function(word1, word2) {
+  let dp = Array.from(Array(word1.length + 1), () => Array(word2.length+1).fill(0));
+
+    for(let i = 1; i <= word1.length; i++) {
+        dp[i][0] = i; 
+    }
+
+    for(let j = 1; j <= word2.length; j++) {
+        dp[0][j] = j;
+    }
+
+    for(let i = 1; i <= word1.length; i++) {
+        for(let j = 1; j <= word2.length; j++) {
+            if(word1[i-1] === word2[j-1]) {
+                dp[i][j] = dp[i-1][j-1];
+            } else {
+                dp[i][j] = Math.min(dp[i-1][j] + 1, dp[i][j-1] + 1, dp[i-1][j-1] + 1);
+            }
+        }
+    }
+    
+    return dp[word1.length][word2.length];
+};
+
+// console.log('no72_minDistance', no72_minDistance('horse', 'ros'))
+
+// TODO：==========================================================
+/* 76. 最小覆盖子串
+输入：s = "ADOBECODEBANC", t = "ABC"
+输出："BANC"
+解释：最小覆盖子串 "BANC" 包含来自字符串 t 的 'A'、'B' 和 'C'。 */
+
+var no76_minWindow = function(s, t) {
+  let result = ''
+  let slen = s.length
+  let tMap = new Map()
+  if(t.length === 1) {
+    return s.indexOf(t) === -1 ? '' : t;
+  }
+  if(t.length > s.length || s.length === 0) {
+    return '';
+  }
+
+  for(let i in t) {
+    tMap.set(t[i], (tMap.get(t[i]) || 0) + 1)
+  }
+  let i = 0;
+  while(i < slen) {
+    let sMap = new Map()
+    let cnt = 0
+    if(t.indexOf(s[i]) !== -1) {
+      let begin = i;
+      while(begin < slen && cnt < t.length) {
+        let subStr = s[begin]
+        if(tMap.get(subStr) && ((sMap.get(subStr) || 0) < tMap.get(subStr))) {
+          sMap.set(subStr, (sMap.get(subStr) || 0) + 1)
+          cnt++
+        }
+
+        begin++
+      }
+      if(cnt === t.length) {
+        result = ((begin - i - 1 < result.length) || result.length === 0 ) ? s.slice(i, begin) : result
+      }
+    }
+
+    i++
+  }
+
+  return result
+};
+// console.log('no76', no76_minWindow('ADOBECODEBANC', 'ABC'))
 
 // TODO：❗️抄的==========================================================
 // 31. 下一个排列
@@ -1768,6 +1885,41 @@ var no40_combinationSum2 = function(candidates, target) {
 
 // console.log('no40_combinationSum2', no40_combinationSum2([10,1,2,7,6,1,5], 8))
 
+// console.log('no39_combinationSum', no39_combinationSum(4, 4))
+// TODO：✅==========================================================
+//78. 子集
+// 解集 不能 包含重复的子集。你可以按 任意顺序 返回解集。
+/* 输入：nums = [1,2,3]
+输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]] */
+
+var no78_subsets = function(nums) {
+  let finalRes = []
+  let curCnt = 0;
+  let numsLen = nums.length
+  let path = []
+  let used = []
+  function backtracking(begin) {
+    if(path.length === curCnt) {
+      finalRes.push([...path])
+    }
+
+    for(let i = begin;i < numsLen; i++) {
+      if(used[i]) continue
+      used[i] = true
+      path.push(nums[i])
+      backtracking(i+1)
+      used[i] = false
+      path.pop()
+    }
+  }
+  while(curCnt <= numsLen) {
+    backtracking(0)
+    curCnt++
+  }
+
+  return finalRes
+};
+// console.log('no78_subsets', no78_subsets([1,2,3]))
 
 // TODO：✅==========================================================
 // 82. 删除排序链表中的重复元素 II
@@ -1816,6 +1968,187 @@ var no40_combinationSum2 = function(candidates, target) {
 // let test1 = makeList1([1,1,1,2,3,3,4,5,6])
 // console.log('no82_deleteDuplicates', no82_deleteDuplicates(test1))
 
+
+// TODO：✅==========================================================
+/* 86. 分隔链表
+给你一个链表的头节点 head 和一个特定值 x ，请你对链表进行分隔，使得所有 小于 x 的节点都出现在 大于或等于 x 的节点之前。
+输入：head = [1,4,3,2,5,2], x = 3
+输出：[1,2,2,4,3,5] */
+
+var no86_partition = function(head, x) {
+
+  if(!head || !head.next) return head
+  let minList = new ListNode(0)
+  let maxList = new ListNode(0)
+  let copyRes = minList;
+  let copyMax = maxList;
+
+  while(head) {
+    if(head.val < x) {
+      minList.next = new ListNode(head.val)
+      minList = minList.next
+    } else {
+      maxList.next = new ListNode(head.val)
+      maxList = maxList.next
+    }
+
+    head = head.next
+  }
+
+  minList.next = copyMax.next
+  return copyRes.next
+};
+let list_86 = makeList1([2,1])
+// console.log('no86_partition',no86_partition(list_86, 4))
+
+// TODO：✅==========================================================
+//92. 反转链表 II
+// 给你单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表 。
+// 输入：head = [1,2,3,4,5], left = 2, right = 4
+// 输出：[1,4,3,2,5]
+
+var no92_reverseBetween = function(head, left, right) {
+  if(!head || !head.next) return head
+
+  let reverseList = new ListNode(0)
+  let copyReverseList = reverseList
+  let copyHead = head
+  let newList = new ListNode(0)
+  let res = newList
+  let cnt = 1;
+  while(head) {
+    if(left <= cnt && cnt <= right) {
+      reverseList.next = new ListNode(head.val)
+      reverseList = reverseList.next
+    }
+
+    cnt++
+    head = head.next
+  }
+  cnt = 1
+  while(copyHead) {
+    if(cnt < left){
+      newList.next = new ListNode(copyHead.val) 
+      newList = newList.next
+    } else if(left === cnt) {
+      newList.next = no206_reverse(copyReverseList.next) 
+      newList = newList.next
+    } else if (left < cnt && cnt <= right) {
+      newList = newList.next
+    } else if(cnt > right) {
+      newList.next = new ListNode(copyHead.val) 
+      newList = newList.next
+    }
+
+    cnt++
+    copyHead = copyHead.next
+  }
+
+  return res.next
+};
+let list_92 = makeList1([1,2,3,4,5])
+// console.log('no92_reverseBetween',no92_reverseBetween(list_92, 2, 4))
+
+// TODO：==========================================================
+// 93. 复原 IP 地址
+// 输入：s = "101023"
+// 输出：["1.0.10.23","1.0.102.3","10.1.0.23","10.10.2.3","101.0.2.3"]
+
+var no93_restoreIpAddresses = function(s) {
+  let path = []
+  let finalRes = []
+
+  function backtracking() {
+    if(path.length === 4) {
+      finalRes.push([...path])
+    }
+
+    for(let i = 0; i < s.length; i++) {
+
+    }
+  }
+
+};
+// console.log('no93_restoreIpAddresses',no93_restoreIpAddresses('101023'))
+
+// TODO：✅==========================================================
+// 输入：nums = [1,2,2]
+// 输出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
+
+var no90_subsetsWithDup = function(nums) {
+  let finalRes = []
+  let curCnt = 0;
+  let numsLen = nums.length
+  let path = []
+  let used = []
+  nums = nums.sort((a, b) => a - b)
+  function backtracking(begin) {
+    if(path.length === curCnt) {
+      finalRes.push([...path])
+    }
+
+    for(let i = begin;i < numsLen; i++) {
+      if(used[i] || (i > 0 && nums[i] === nums[i-1] && !used[i-1])) continue
+      used[i] = true
+      path.push(nums[i])
+      backtracking(i+1)
+      used[i] = false
+      path.pop()
+    }
+  }
+  while(curCnt <= numsLen) {
+    backtracking(0)
+    curCnt++
+  }
+
+  return finalRes
+};
+
+// console.log('no90_subsetsWithDup', no90_subsetsWithDup([1,4,4,4,4]))
+
+function TreeNode(val, left, right) {
+     this.val = (val===undefined ? 0 : val)
+      this.left = (left===undefined ? null : left)
+     this.right = (right===undefined ? null : right)
+ }
+
+//  98. 验证二叉搜索树
+//  输入：root = [5,1,4,null,null,3,6]
+//  输出：false
+
+var no98_isValidBST = function(root) {
+  let pre = null;
+  function deep(root) {
+    if(!root) return true
+    let left = deep(root.left)
+    if(!pre && root.val < pre) {
+      return false
+    }
+    pre = root.val
+
+    let right = deep(root.right)
+    return left && right
+  }
+  deep(root)
+};
+
+let no98params = TreeNode([5,1,4,null,null,3,6])
+console.log('no98_isValidBST', no98_isValidBST(no98params))
+
+// TODO：✅==========================================================
+var no100_isSameTree = function(p, q) {
+  if(p == null && q == null) 
+    return true;
+  if(p == null || q == null) 
+    return false;
+  if(p.val != q.val) 
+    return false;
+  return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+};
+
+let p = new TreeNode([1,1,2])
+let q = new TreeNode([1,1,2])
+console.log('[1,2,1]no100_isSameTree', no100_isSameTree(p,q))
 
 // TODO：✅==========================================================
 // 41. 缺失的第一个正数
@@ -1979,10 +2312,575 @@ var no49_groupAnagrams = function(strs) {
   return [...map.values()]
 };
 
-
-
 // console.log('no49_groupAnagrams', no49_groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"]))
 // console.log('no49_groupAnagrams', no49_groupAnagrams(["ddddddddddg","dgggggggggg"]))
+
+// TODO： ✅==========================================================
+//53. 最大子数组和
+/* 给你一个整数数组 nums ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+子数组 是数组中的一个连续部分。
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出：6
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6 
+ */
+
+var no53_maxSubArray = function(nums) {
+  let pre = 0;
+  let res = nums[0]
+
+  for(let i = 0; i < nums.length; i ++) {
+    pre = Math.max(nums[i], pre+nums[i])
+    res = Math.max(res, pre)
+  }
+
+  return res;
+};
+
+// console.log('no53_maxSubArray', no53_maxSubArray([-2,-1,-3,-4,-1,-2,-1,-5]))
+
+//TODO：CV
+// 54.螺旋矩阵
+// 给你一个 m 行 n 列的矩阵 matrix ，请按照 顺时针螺旋顺序 ，返回矩阵中的所有元素。
+/* 输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[1,2,3,6,9,8,7,4,5] */
+
+var no54_spiralOrder = function(matrix) {
+    if (!matrix.length || !matrix[0].length) {
+        return [];
+    }
+
+    const rows = matrix.length, columns = matrix[0].length;
+    const order = [];
+    let left = 0, right = columns - 1, top = 0, bottom = rows - 1;
+    while (left <= right && top <= bottom) {
+        for (let column = left; column <= right; column++) {
+            order.push(matrix[top][column]);
+        }
+        for (let row = top + 1; row <= bottom; row++) {
+            order.push(matrix[row][right]);
+        }
+        if (left < right && top < bottom) {
+            for (let column = right - 1; column > left; column--) {
+                order.push(matrix[bottom][column]);
+            }
+            for (let row = bottom; row > top; row--) {
+                order.push(matrix[row][left]);
+            }
+        }
+        [left, right, top, bottom] = [left + 1, right - 1, top + 1, bottom - 1];
+    }
+    return order;
+
+};
+
+// console.log('no54_spiralOrder', no54_spiralOrder([[1,2,3],[4,5,6],[7,8,9]]))
+
+// TODO：✅==========================================================
+/* 55. 跳跃游戏
+给定一个非负整数数组 nums ，你最初位于数组的 第一个下标 。
+数组中的每个元素代表你在该位置可以跳跃的最大长度。
+判断你是否能够到达最后一个下标。 
+输入：nums = [2,3,1,1,4]
+输出：true
+解释：可以先跳 1 步，从下标 0 到达下标 1, 然后再从下标 1 跳 3 步到达最后一个下标
+*/
+var no55_canJump = function(nums) {
+  let maxDis = nums[0];
+  let end = 0;
+  let numsLen = nums.length;
+  for(let i = 0;i < nums.length - 1; i++) {
+    maxDis = Math.max(maxDis, nums[i] + i);
+    if(i === end) {
+      end = maxDis
+    }
+    if(end >= numsLen - 1) {
+      return true
+    }
+  }
+
+  return end >= numsLen - 1;
+};
+// console.log('no55_canJump', no55_canJump([2,3,1,1,4]))
+
+// TODO：✅==========================================================
+/* 56. 合并区间
+以数组 intervals 表示若干个区间的集合，其中单个区间为 intervals[i] = [starti, endi] 。
+请你合并所有重叠的区间，并返回 一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间 。
+示例 1：
+输入：intervals = [[1,3],[2,6],[8,10],[15,18]]
+输出：[[1,6],[8,10],[15,18]]
+解释：区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6]. */
+var no56_merge = function(intervals) {
+  let i = 0;
+  intervals = intervals.sort((a, b) => a[0]+a[1] - b[0]-b[1])
+  while( i + 1 < intervals.length ) {
+    let first = intervals[i]
+    let second = intervals[i+1]
+    if(second[0] > first[1]) {
+      i++;
+    } else {
+      let temp = [...first, ...second]
+      intervals[i] = [Math.min(...temp), Math.max(...temp)]
+      intervals.splice(i+1,1);
+      i = 0;
+    }
+  }
+  return intervals;
+};
+// console.log('no56_merge', no56_merge([[1,4],[0,0]]))
+
+// TODO：✅==========================================================
+/* 57. 插入区间
+给你一个 无重叠的 ，按照区间起始端点排序的区间列表。
+在列表中插入一个新的区间，你需要确保列表中的区间仍然有序且不重叠（如果有必要的话，可以合并区间）。
+
+intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+输出：[[1,2],[3,10],[12,16]]
+*/
+
+var no57_insert = function(intervals, newInterval) {
+  intervals = [...intervals, newInterval].sort((a, b) => a[0] - b[0])
+  let i = 0;
+  while( i + 1 < intervals.length ) {
+    let first = intervals[i]
+    let second = intervals[i+1]
+    if(second[0] > first[1]) {
+      i++;
+    } else {
+      let temp = [...first, ...second]
+      intervals[i] = [Math.min(...temp), Math.max(...temp)]
+      intervals.splice(i+1,1);
+      i = 0;
+    }
+  }
+  return intervals;
+};
+// console.log('no57_insert', no57_insert([[1,2],[3,5],[6,7],[8,10],[12,16]], [4,8]))
+
+// TODO：✅==========================================================
+// 58. 最后一个单词的长度
+var no58_lengthOfLastWord = function(s) {
+  s = s.trim()
+  let i = s.length - 1;
+  let cnt = 0;
+  while(s.charAt(i) !== ' ' && i >= 0) {
+    cnt++;
+    i--;
+  }
+  return cnt
+};
+
+// console.log('no58_lengthOfLastWord', no58_lengthOfLastWord("a"))
+
+// TODO：✅==========================================================
+// 59. 螺旋矩阵 II
+/* 给你一个正整数 n ，生成一个包含 1 到 n2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+输入：n = 3
+输出：[[1,2,3],[8,9,4],[7,6,5]] */
+
+var no59_generateMatrix = function(n) {
+  let res = new Array(n);
+  let num = 0;
+  for(let i = 0; i < n; i++) {
+    res[i] = new Array(n);
+  }
+  let [left, right, top, bottom] = [0, n-1, 0, n-1]
+
+  while(left<=right && top <= bottom) {
+    for(let i = left; i <= right; i++) {
+      res[top][i] = ++num;
+    }
+
+    for(let i = top + 1; i <= bottom; i++) {
+      res[i][right] = ++num;
+    }
+
+    for(let i = right - 1; i >= left; i--) {
+      res[bottom][i] = ++num;
+    }
+
+    for(let i = bottom - 1; i >= top + 1; i--) {
+      res[i][left] = ++num;
+    }
+    [left, right, top, bottom] = [left+1, right-1, top+1, bottom-1]
+  }
+  return res;
+};
+
+// console.log('no59_generateMatrix', no59_generateMatrix(5))
+
+var no58_lengthOfLastWord = function(s) {
+  s = s.trim()
+  let i = s.length - 1;
+  let cnt = 0;
+  while(s.charAt(i) !== ' ' && i >= 0) {
+    cnt++;
+    i--;
+  }
+  return cnt
+};
+
+// TODO：✅==========================================================
+/* 60. 排列序列
+给出集合 [1,2,3,...,n]，其所有元素共有 n! 种排列。
+按大小顺序列出所有排列情况，并一一标记，当 n = 3 时, 所有排列如下：
+"123"
+"132"
+"213"
+"231"
+"312"
+"321"
+给定 n 和 k，返回第 k 个排列。 */
+var no60_getPermutation = function(n, k) {
+  let res = []
+  let path = ''
+  let used = []
+  
+  function backtracking() {
+    if(res.length === k) {
+      return res[k-1]
+    }
+    if(path.length === n) {
+      res.push(path);
+    }
+    for(let i = 1; i <= n; i++) {
+      if(used[i]) continue
+      path += i + ''
+      used[i] = true
+      backtracking()
+      path = path.slice(0, -1)
+      used[i] = false
+    }
+  }
+
+  backtracking();
+  return res[k-1];
+};
+
+// console.log('no60_getPermutation', no60_getPermutation(3, 6))
+// TODO：==========================================================
+/* 61. 旋转链表
+给你一个链表的头节点 head ，旋转链表，将链表每个节点向右移动 k 个位置。
+输入：head = [1,2,3,4,5], k = 2
+输出：[4,5,1,2,3]
+*/
+var no61_rotateRight = function(head, k) {
+  
+  if(!head || !head.next) {
+    return head;
+  }
+  let n = 0;
+  let res;
+  let newHead = head
+  
+  while(newHead) {
+    newHead = newHead.next;
+    n ++;
+  };
+
+  k = n - k % n;
+
+  let copyList = new ListNode(0);
+  res = copyList;
+  let tempHead = new ListNode(0);
+  let temp = tempHead;
+  while(head) {
+    if(k > 0) {
+      tempHead.next = new ListNode(head.val)
+      tempHead = tempHead.next;
+      k--;
+    } else {
+      copyList.next = head;
+      copyList = copyList.next
+    }
+    head = head.next;
+    n++;
+  }
+  copyList.next = temp.next;
+  
+  return res.next
+};
+let no61_list = makeList1([1,2,3,4,5])
+// console.log('no61_rotateRight', no61_rotateRight(no61_list, 12))
+
+//✅DP
+var no62_uniquePaths = function(m, n) {
+  const arr = new Array();
+  for(let i = 0; i < m; i++) {
+    arr[i] = new Array();
+    for(let j = 0; j < n; j++) {
+      if(i === 0) {
+        arr[i][j] = 1;
+      } else if(j === 0) {
+        arr[i][j] = 1;
+      } else {
+        arr[i][j] = 0;
+      }
+    }
+  }
+
+
+  for(let i = 1; i < m; i++) {
+      for(let j = 1; j < n; j++) {
+          arr[i][j] = arr[i-1][j] + arr[i][j-1];
+      }
+  }
+  return arr[m-1][n-1]
+};
+// console.log('no63_uniquePathsWithObstacles--2', no62_uniquePaths(3,3))
+
+// TODO：✅DP==========================================================
+//63. 不同路径 II
+//那么从左上角到右下角将会有多少条不同的路径？
+
+/* for (int i = 0; i < m && obstacleGrid[i][0] == 0; i++) {
+  dp[i][0] = 1;
+}
+for (int j = 0; j < n && obstacleGrid[0][j] == 0; j++) {
+  dp[0][j] = 1;
+}
+
+for (int i = 1; i < m; i++) {
+  for (int j = 1; j < n; j++) {
+      if (obstacleGrid[i][j] == 0) {
+          dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+      }
+  }
+} */
+
+
+var no63_uniquePathsWithObstacles = function(obstacleGrid) {
+  let r = obstacleGrid.length, c = obstacleGrid[0].length;
+  let dp = new Array(r);
+
+  for (let i = 0; i < r; i++) {
+    dp[i] = new Array(c).fill(0)
+  }
+
+  for (let i = 0; i < r && obstacleGrid[i][0] == 0; i++) {
+    dp[i][0] = 1;
+  }
+
+  for (let j = 0; j < c && obstacleGrid[0][j] == 0; j++) {
+    dp[0][j] = 1;
+  }
+
+  for(let i = 1; i < r; i++) {
+    for(let j = 1; j < c; j++) {
+      dp[i][j] = obstacleGrid[i][j] ? 0 : (dp[i-1][j] + dp[i][j-1]);
+    }
+  }
+  return dp[r-1][c-1]
+};
+
+// console.log('no63_uniquePathsWithObstacles--2', no63_uniquePathsWithObstacles([[0,1,0,0,0],[1,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]]
+//   ))
+
+
+// TODO：✅==========================================================
+//66. 数组加一
+var no66_plusOne = function(digits) {
+  let i = digits.length - 1;
+  while(i >= 0) {
+    if(digits[i] + 1 < 10) {
+      digits[i] = digits[i] + 1
+      return digits
+    } else {
+      digits[i] = 0;
+      i--;
+    }
+  }
+  return [1, ...digits]
+};
+
+// console.log('no66_plusOne', no66_plusOne([1,9,9,9,9]))
+// TODO：✅==========================================================
+//67. 二进制求和
+/* 给你两个二进制字符串 a 和 b ，以二进制字符串的形式返回它们的和。
+输入：a = "1010", b = "1011"
+输出："10101" */
+
+var no67_addBinary = function(a, b) {
+  let i = a.length - 1, j = b.length - 1
+  let res = ''
+  let shouAdd = 0;
+  while(i >= 0 || j >=0) {
+    let num1 = i >=0 ? Number(a.charAt(i)) : 0;
+    let num2 = j >=0 ? Number(b.charAt(j)) : 0;
+    let curRes = num1 + num2 + shouAdd;
+    if(curRes > 1) {
+      res = (curRes === 2 ? '0' : '1') + res
+      shouAdd = 1
+    } else {
+      res = curRes + res
+      shouAdd = 0
+    }
+
+    if(j >= 0) {
+      j --
+    }
+    if(i >= 0) {
+      i --
+    }
+  }
+
+  return shouAdd ? shouAdd + res :res;
+};
+
+// console.log('no67_addBinary', no67_addBinary('11', '1111'))
+
+// TODO：✅==========================================================
+/* 69. x 的平方根 
+给你一个非负整数 x ，计算并返回 x 的 算术平方根 。
+由于返回类型是整数，结果只保留 整数部分 ，小数部分将被 舍去 。
+注意：不允许使用任何内置指数函数和算符，例如 pow(x, 0.5) 或者 x ** 0.5 。
+输入：x = 8
+输出：2
+解释：8 的算术平方根是 2.82842..., 由于返回类型是整数，小数部分将被舍去。 */
+
+var no69_mySqrt = function(x) {
+  let n = 1;
+  while( n*n < x) {
+    n++;
+  } 
+  return n*n === x ? n : n-1;
+};
+// console.log('no69_mySqrt', no69_mySqrt(100))
+
+// TODO：==========================================================
+// 73. 矩阵置零
+/* 给定一个 m x n 的矩阵，如果一个元素为 0 ，则将其所在行和列的所有元素都设为 0 。请使用 原地 算法。
+输入：matrix = [[1,1,1],[1,0,1],[1,1,1]]
+输出：[[1,0,1],[0,0,0],[1,0,1]] */
+var no73_setZeroes = function(matrix) {
+  let m = matrix.length;
+  let n = matrix[0].length;
+  let zero = new Array();
+  for(let i = 0; i < m; i++) {
+    for(let j = 0; j < n; j++) {
+      if(matrix[i][j] === 0) {
+        zero.push([i, j])
+      }
+    }
+  }
+
+  if(zero.length === 0) {
+    return matrix
+  }
+  
+  for(let i in zero) {
+    let [row, col] = zero[i]
+
+    for(let i = 0; i < m; i++) {
+      matrix[i][col] = 0;
+    }
+    for(let j = 0; j < n; j++) {
+      matrix[row][j] = 0;
+    }
+  }
+  return matrix
+};
+// console.log('no73_setZeroes', no73_setZeroes([[0,1,4,3],[3,0,5,2],[1,3,1,5], [1,1,1,1]]))
+
+// TODO：✅==========================================================
+//74. 搜索二维矩阵
+/* 编写一个高效的算法来判断 m x n 矩阵中，是否存在一个目标值。该矩阵具有如下特性：
+
+每行中的整数从左到右按升序排列。
+每行的第一个整数大于前一行的最后一个整数。
+
+输入：matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
+输出：true */
+
+
+var no74_searchMatrix = function(matrix, target) {
+  let m = matrix.length;
+  let n = matrix[0].length;
+  let i = 0
+  for(i; i < m; i ++) {
+    if(matrix[i][0] > target) {
+      break
+    }
+    if(matrix[i][0] === target) {
+      return true
+    }
+  }
+  i -= 1
+  if(i < 0) return false
+
+  for(let j = 0; j < n; j++) {
+    if(matrix[i][j] === target) return true
+  }
+  return false
+};
+
+// console.log('no74_searchMatrix', no74_searchMatrix([[1]], 0))
+
+// TODO：❗️==========================================================
+// 始终以斜杠 '/' 开头。
+// 两个目录名之间必须只有一个斜杠 '/' 。
+// 最后一个目录名（如果存在）不能 以 '/' 结尾。
+// 此外，路径仅包含从根目录到目标文件或目录的路径上的目录（即，不含 '.' 或 '..'）。
+
+// 输入：path = "/a/./b/../../c/"
+// 输出："/c"
+
+var no71_simplifyPath = function(path) {
+  const names = path.split("/");
+  const stack = [];
+  for (const name of names) {
+      if (name === "..") {
+          if (stack.length) {
+              stack.pop();
+          } 
+      } else if (name.length && name !== ".") {
+          stack.push(name);
+      }
+  }
+  
+  return "/" + stack.join("/");
+
+};
+
+console.log('no71_simplifyPath', no71_simplifyPath( "/a/./b/../../c/"))
+
+// TODO：❗️==========================================================
+// 75. 颜色分类
+/* 给定一个包含红色、白色和蓝色、共 n 个元素的数组 nums ，原地对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
+我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色。
+输入：nums = [2,0,2,1,1,0]
+输出：[0,0,1,1,2,2] */
+
+function swap(nums, index1, index2) {
+  let t = nums[index1]
+  nums[index1] = nums[index2]
+  nums[index2] = t
+}
+
+var no75_sortColors = function(nums) {
+  let len = nums.length;
+  if (len < 2) {
+      return;
+  }
+
+  let zero = 0;
+  let two = len;
+  let i = 0;
+  while (i < two) {
+      if (nums[i] == 0) {
+          swap(nums, i, zero);
+          zero++;
+          i++;
+      } else if (nums[i] == 1) {
+          i++;
+      } else {
+          two--;
+          swap(nums, i, two);
+      }
+  }
+};
+
+// console.log('no75_sortColors', no75_sortColors([2,0,2,1,1,0]))
 
 // TODO：✅==========================================================
 // 50. Pow(x, n)
@@ -2022,6 +2920,7 @@ var no83_deleteDuplicates = function(head) {
   }
   return head
 };
+
 
 /* var no83_deleteDuplicates = function(head) {
   if(!head || !head.next) {
@@ -2144,3 +3043,18 @@ var no80_removeDuplicates = function(nums) {
 };
 
 // console.log('no80_removeDuplicates', no80_removeDuplicates([0,0,1,1,1,1,2,3,3]));
+// TODO：✅==========================================================
+// 88. 合并两个有序数组
+var no88_merge = function(nums1, m, nums2, n) {
+  let i = nums1.length ;
+
+  while (n > 0) {
+    if (m > 0 && nums1[m-1] > nums2[n-1]) {
+      nums1[--i] = nums1[--m]; 
+    }else{
+      nums1[--i] = nums2[--n]; 
+    }
+  }
+};
+
+no88_merge([4,5,6,0,0,0],3,[1,2,3],3)
