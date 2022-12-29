@@ -1015,6 +1015,51 @@ var no30_findSubstring = function(s, words) {
 };
 // console.log('no30_findSubstring', no30_findSubstring("a", ["a", "a"]))
 
+// TODO：❗️==========================================================
+/* 72. 编辑距离
+给你两个单词 word1 和 word2， 请返回将 word1 转换成 word2 所使用的最少操作数  。
+
+你可以对一个单词进行如下三种操作：
+插入一个字符
+删除一个字符
+替换一个字符
+输入：word1 = "horse", word2 = "ros"
+输出：3
+解释：
+horse -> rorse (将 'h' 替换为 'r')
+rorse -> rose (删除 'r')
+rose -> ros (删除 'e') 
+
+输入：word1 = "intention", word2 = "execution"
+输出：5
+*/
+
+var no72_minDistance = function(word1, word2) {
+  let dp = Array.from(Array(word1.length + 1), () => Array(word2.length+1).fill(0));
+
+    for(let i = 1; i <= word1.length; i++) {
+        dp[i][0] = i; 
+    }
+
+    for(let j = 1; j <= word2.length; j++) {
+        dp[0][j] = j;
+    }
+
+    for(let i = 1; i <= word1.length; i++) {
+        for(let j = 1; j <= word2.length; j++) {
+            if(word1[i-1] === word2[j-1]) {
+                dp[i][j] = dp[i-1][j-1];
+            } else {
+                dp[i][j] = Math.min(dp[i-1][j] + 1, dp[i][j-1] + 1, dp[i-1][j-1] + 1);
+            }
+        }
+    }
+    
+    return dp[word1.length][word2.length];
+};
+
+// console.log('no72_minDistance', no72_minDistance('horse', 'ros'))
+
 // TODO：==========================================================
 /* 76. 最小覆盖子串
 输入：s = "ADOBECODEBANC", t = "ABC"
@@ -1543,6 +1588,187 @@ var no78_subsets = function(nums) {
 // let test1 = makeList1([1,1,1,2,3,3,4,5,6])
 // console.log('no82_deleteDuplicates', no82_deleteDuplicates(test1))
 
+
+// TODO：✅==========================================================
+/* 86. 分隔链表
+给你一个链表的头节点 head 和一个特定值 x ，请你对链表进行分隔，使得所有 小于 x 的节点都出现在 大于或等于 x 的节点之前。
+输入：head = [1,4,3,2,5,2], x = 3
+输出：[1,2,2,4,3,5] */
+
+var no86_partition = function(head, x) {
+
+  if(!head || !head.next) return head
+  let minList = new ListNode(0)
+  let maxList = new ListNode(0)
+  let copyRes = minList;
+  let copyMax = maxList;
+
+  while(head) {
+    if(head.val < x) {
+      minList.next = new ListNode(head.val)
+      minList = minList.next
+    } else {
+      maxList.next = new ListNode(head.val)
+      maxList = maxList.next
+    }
+
+    head = head.next
+  }
+
+  minList.next = copyMax.next
+  return copyRes.next
+};
+let list_86 = makeList1([2,1])
+// console.log('no86_partition',no86_partition(list_86, 4))
+
+// TODO：✅==========================================================
+//92. 反转链表 II
+// 给你单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表 。
+// 输入：head = [1,2,3,4,5], left = 2, right = 4
+// 输出：[1,4,3,2,5]
+
+var no92_reverseBetween = function(head, left, right) {
+  if(!head || !head.next) return head
+
+  let reverseList = new ListNode(0)
+  let copyReverseList = reverseList
+  let copyHead = head
+  let newList = new ListNode(0)
+  let res = newList
+  let cnt = 1;
+  while(head) {
+    if(left <= cnt && cnt <= right) {
+      reverseList.next = new ListNode(head.val)
+      reverseList = reverseList.next
+    }
+
+    cnt++
+    head = head.next
+  }
+  cnt = 1
+  while(copyHead) {
+    if(cnt < left){
+      newList.next = new ListNode(copyHead.val) 
+      newList = newList.next
+    } else if(left === cnt) {
+      newList.next = no206_reverse(copyReverseList.next) 
+      newList = newList.next
+    } else if (left < cnt && cnt <= right) {
+      newList = newList.next
+    } else if(cnt > right) {
+      newList.next = new ListNode(copyHead.val) 
+      newList = newList.next
+    }
+
+    cnt++
+    copyHead = copyHead.next
+  }
+
+  return res.next
+};
+let list_92 = makeList1([1,2,3,4,5])
+// console.log('no92_reverseBetween',no92_reverseBetween(list_92, 2, 4))
+
+// TODO：==========================================================
+// 93. 复原 IP 地址
+// 输入：s = "101023"
+// 输出：["1.0.10.23","1.0.102.3","10.1.0.23","10.10.2.3","101.0.2.3"]
+
+var no93_restoreIpAddresses = function(s) {
+  let path = []
+  let finalRes = []
+
+  function backtracking() {
+    if(path.length === 4) {
+      finalRes.push([...path])
+    }
+
+    for(let i = 0; i < s.length; i++) {
+
+    }
+  }
+
+};
+// console.log('no93_restoreIpAddresses',no93_restoreIpAddresses('101023'))
+
+// TODO：✅==========================================================
+// 输入：nums = [1,2,2]
+// 输出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
+
+var no90_subsetsWithDup = function(nums) {
+  let finalRes = []
+  let curCnt = 0;
+  let numsLen = nums.length
+  let path = []
+  let used = []
+  nums = nums.sort((a, b) => a - b)
+  function backtracking(begin) {
+    if(path.length === curCnt) {
+      finalRes.push([...path])
+    }
+
+    for(let i = begin;i < numsLen; i++) {
+      if(used[i] || (i > 0 && nums[i] === nums[i-1] && !used[i-1])) continue
+      used[i] = true
+      path.push(nums[i])
+      backtracking(i+1)
+      used[i] = false
+      path.pop()
+    }
+  }
+  while(curCnt <= numsLen) {
+    backtracking(0)
+    curCnt++
+  }
+
+  return finalRes
+};
+
+// console.log('no90_subsetsWithDup', no90_subsetsWithDup([1,4,4,4,4]))
+
+function TreeNode(val, left, right) {
+     this.val = (val===undefined ? 0 : val)
+      this.left = (left===undefined ? null : left)
+     this.right = (right===undefined ? null : right)
+ }
+
+//  98. 验证二叉搜索树
+//  输入：root = [5,1,4,null,null,3,6]
+//  输出：false
+
+var no98_isValidBST = function(root) {
+  let pre = null;
+  function deep(root) {
+    if(!root) return true
+    let left = deep(root.left)
+    if(!pre && root.val < pre) {
+      return false
+    }
+    pre = root.val
+
+    let right = deep(root.right)
+    return left && right
+  }
+  deep(root)
+};
+
+let no98params = TreeNode([5,1,4,null,null,3,6])
+console.log('no98_isValidBST', no98_isValidBST(no98params))
+
+// TODO：✅==========================================================
+var no100_isSameTree = function(p, q) {
+  if(p == null && q == null) 
+    return true;
+  if(p == null || q == null) 
+    return false;
+  if(p.val != q.val) 
+    return false;
+  return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+};
+
+let p = new TreeNode([1,1,2])
+let q = new TreeNode([1,1,2])
+console.log('[1,2,1]no100_isSameTree', no100_isSameTree(p,q))
 
 // TODO：✅==========================================================
 // 41. 缺失的第一个正数
@@ -2209,44 +2435,68 @@ var no74_searchMatrix = function(matrix, target) {
 
 // console.log('no74_searchMatrix', no74_searchMatrix([[1]], 0))
 
-// TODO：❌==========================================================
+// TODO：❗️==========================================================
+// 始终以斜杠 '/' 开头。
+// 两个目录名之间必须只有一个斜杠 '/' 。
+// 最后一个目录名（如果存在）不能 以 '/' 结尾。
+// 此外，路径仅包含从根目录到目标文件或目录的路径上的目录（即，不含 '.' 或 '..'）。
+
+// 输入：path = "/a/./b/../../c/"
+// 输出："/c"
+
+var no71_simplifyPath = function(path) {
+  const names = path.split("/");
+  const stack = [];
+  for (const name of names) {
+      if (name === "..") {
+          if (stack.length) {
+              stack.pop();
+          } 
+      } else if (name.length && name !== ".") {
+          stack.push(name);
+      }
+  }
+  
+  return "/" + stack.join("/");
+
+};
+
+console.log('no71_simplifyPath', no71_simplifyPath( "/a/./b/../../c/"))
+
+// TODO：❗️==========================================================
 // 75. 颜色分类
 /* 给定一个包含红色、白色和蓝色、共 n 个元素的数组 nums ，原地对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
 我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色。
 输入：nums = [2,0,2,1,1,0]
 输出：[0,0,1,1,2,2] */
-function merge(left, right) {
-  let res = []
 
-  while(left.length > 0 && right.length > 0) {
-    if(left[0] <= right[0]) {
-      res.push(left[0])
-      left.shift()
-    } else {
-      res.push(right[0])
-      right.shift()
-    }
-  }
-
-  if(left.length) {
-    res = [...res, ...left]
-  }else if(right.length) {
-    res = [...res, ...right]
-  }
-  return res;
+function swap(nums, index1, index2) {
+  let t = nums[index1]
+  nums[index1] = nums[index2]
+  nums[index2] = t
 }
 
 var no75_sortColors = function(nums) {
   let len = nums.length;
-  if(len < 2) {
-    return nums
+  if (len < 2) {
+      return;
   }
 
-  let mid = Math.floor(len/2),
-    left = nums.slice(0, mid),
-    right = nums.slice(mid)
-
-  return merge(no75_sortColors(left), no75_sortColors(right))
+  let zero = 0;
+  let two = len;
+  let i = 0;
+  while (i < two) {
+      if (nums[i] == 0) {
+          swap(nums, i, zero);
+          zero++;
+          i++;
+      } else if (nums[i] == 1) {
+          i++;
+      } else {
+          two--;
+          swap(nums, i, two);
+      }
+  }
 };
 
 // console.log('no75_sortColors', no75_sortColors([2,0,2,1,1,0]))
