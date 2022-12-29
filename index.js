@@ -601,17 +601,11 @@ var no21_mergeTwoLists = function(list1, list2) {
 
 // console.log('no21_mergeTwoLists-res, ' ,no21_mergeTwoLists(list1, list2))
 
-// TODO：❓==========================================================
+// TODO：❗️抄的==========================================================
 /* 22. 括号生成
 输入：n = 3
 输出：["((()))","(()())","(())()","()(())","()()()"]
 */
-
-var no22_generateParenthesis = function(n) {
-    if (n == 0) return [];
-
-    let data = new Map();
-    data.set(0, ['']);
 //简单来说，在求N个括号的排列组合时，把第N种情况（也就是N个括号排列组合）视为单独拿一个括号E出来，
 // 剩下的N-1个括号分为两部分，P个括号和Q个括号，P+Q=N-1，然后这两部分分别处于括号E内和括号E的右边，
 // 各自进行括号的排列组合。由于我们是一步步计算得到N个括号的情况的，
@@ -624,33 +618,98 @@ var no22_generateParenthesis = function(n) {
 // 其中 p + q = n-1，且 p q 均为非负整数。
 // 事实上，当上述 p 从 0 取到 n-1，q 从 n-1 取到 0 后，所有情况就遍历完了。
 // 注：上述遍历是没有重复情况出现的，即当 (p1,q1)≠(p2,q2) 时，按上述方式取的括号组合一定不同。
+// var no22_generateParenthesis = function(n) {
+//     if (n == 0) return [];
 
-    for (let i = 1; i <= n; i++) {
-      let result = [];
-      for (let j = 0; j <= i - 1; j++) {
-        let center = data.get(j);
-        let right = data.get(i - 1 - j);
-        console.log('center', center, 'tight', right)
-        for (let k = 0; k < center.length; k++) {
-          for (let t = 0; t < right.length; t++) {
-            console.log('${center[k]})$', center[k],'{right[t]}', right[t])
-            result.push(`(${center[k]})${right[t]}`);
-          }
-        }
-      }
-      data.set(i, result);
+//     let data = new Map();
+//     data.set(0, ['']);
+//     for (let i = 1; i <= n; i++) {
+//       let result = [];
+//       for (let j = 0; j <= i - 1; j++) {
+//         let center = data.get(j);
+//         let right = data.get(i - 1 - j);
+//         for (let k = 0; k < center.length; k++) {
+//           for (let t = 0; t < right.length; t++) {
+//             result.push(`(${center[k]})${right[t]}`);
+//           }
+//         }
+//       }
+//       data.set(i, result);
+//     }
+//     return data.get(n);
+// };
+
+var no22_generateParenthesis = function(n) {
+  let res = []
+  if(n === 0) {
+    return res;
+  }
+
+  function dfs(curStr, left, right, res) {
+    if(left === 0 && right === 0) {
+      res.push(curStr)
+      return
     }
-    return data.get(n);
+
+    if (left > right) {
+      return;
+    }
+
+    if (left > 0) {
+        dfs(curStr + "(", left - 1, right, res);
+    }
+
+    if (right > 0) {
+        dfs(curStr + ")", left, right - 1, res);
+    }
+  }
+
+  dfs('', n, n, res)
+  return res;
 };
 
 // console.log('no22_generateParenthesis', no22_generateParenthesis(3))
 
+// TODO：❗️抄的动归==========================================================
+/* 32. 最长有效括号
+给你一个只包含 '(' 和 ')' 的字符串，找出最长有效（格式正确且连续）括号子串的长度。
+输入：s = ")()())"
+输出：4
+解释：最长有效括号子串是 "()()" */
+var no32_longestValidParentheses = function(s) {
+  let sLen = s.length
+  if(sLen === 0) return 0;
+  let dp = new Array(sLen).fill(0)
+
+  let maxVal = 0;
+  for(let i = 0; i < sLen; i++) {
+    if(s[i] === ")") {
+      if(s[i-1] === "(") {
+        dp[i] = 2;
+        if(i - 2 >= 0) {
+          dp[i] = dp[i] + dp[i-2]
+        }
+      } else if (dp[i-1] > 0) {
+        if ((i - dp[i - 1] - 1) >= 0 && s[i - dp[i - 1] - 1] == '(') {
+          dp[i] = dp[i - 1] + 2;
+          if ((i - dp[i - 1] - 2) >= 0) {
+              dp[i] = dp[i] + dp[i - dp[i - 1] - 2];
+          }
+        }
+      }
+    }
+    maxVal = Math.max(maxVal, dp[i]);
+  }
+  return maxVal
+};
+
+// console.log('no32_longestValidParentheses', no32_longestValidParentheses(')()())'));
 
 // TODO：✅==========================================================
 // 执行用时：88 ms, 在所有 JavaScript 提交中击败了72.35%的用户
 // 内存消耗：46 MB, 在所有 JavaScript 提交中击败了75.00%的用户
 
-// 给你一个链表数组，每个链表都已经按升序排列。
+// 23:给你一个链表数组，每个链表都已经按升序排列。
 // 请你将所有链表合并到一个升序链表中，返回合并后的链表。
 // 示例 1：
 // 输入：lists = [[1,4,5],[1,3,4],[2,6]]
@@ -1259,6 +1318,250 @@ let board =
 // console.log('no36_isValidSudoku', no36_isValidSudoku(board))
 
 // TODO：✅==========================================================
+// 37. 解数独
+/* 给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
+输入：nums = [1,2,3]
+输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]] */
+
+var no37_solveSudoku = function(board) {
+  
+  function checkValid(row, col, strNum, board) {
+    for(let i = 0 ; i < 9; i++) {
+      if(strNum == board[i][col]) return false
+      if(strNum == board[row][i]) return false
+    }
+
+    let startRow = Math.floor(row/3)*3
+    let startCol = Math.floor(col/3)*3
+    for(let i = startRow; i < startRow + 3; i++) {
+      for(let j = startCol; j < startCol + 3; j++) {
+          if(board[i][j] === strNum) return false
+      }
+    }
+    return true
+  }
+
+  function backTracking() {
+    for(let i = 0; i < board.length; i++) {
+      for(let j = 0; j < board[0].length; j++) {
+        if(board[i][j] !== '.') continue
+        for(let val = 1; val <= 9; val++) {
+          if(checkValid(i, j, `${val}`, board)) {
+              board[i][j] = `${val}`
+              if (backTracking()) {
+                  return true
+              }
+              board[i][j] = `.`
+          }
+        }
+        return false
+      }
+    }
+    return true
+  }
+  backTracking()
+
+  return board
+};
+
+
+// console.log('no37_solveSudoku', no37_solveSudoku([["5","3",".",".","7",".",".",".","."],
+// ["6",".",".","1","9","5",".",".","."],[".","9","8",".",".",".",".","6","."],
+// ["8",".",".",".","6",".",".",".","3"],["4",".",".","8",".","3",".",".","1"],
+// ["7",".",".",".","2",".",".",".","6"],[".","6",".",".",".",".","2","8","."],
+// [".",".",".","4","1","9",".",".","5"],[".",".",".",".","8",".",".","7","9"]]
+// ))
+
+// TODO：==========================================================
+/* 1.     1
+2.     11
+3.     21
+4.     1211
+5.     111221 */
+var no38_countAndSay = function(n) {
+  let str = "1";
+  for (let i = 2; i <= n; ++i) {
+    const sb = [];
+    let start = 0;
+    let pos = 0;
+
+    while (pos < str.length) {
+        while (pos < str.length && str[pos] === str[start]) {
+            pos++;
+        }
+        sb.push('' + (pos - start) + str[start]);
+        start = pos;
+    }
+    str = sb.join('');
+  }
+  
+  return str;
+};
+
+var no43_multiply = function(num1, num2) {
+  let num1Len = num1.length;
+  let num2Len = num2.length;
+  let pos = new Array(num1Len + num2Len).fill(0)
+  for(let i = num1Len -1 ; i >= 0; i--) {
+    let n1 = +num1[i]
+    for(let j = num2Len -1 ; j >= 0; j--) {
+      let n2 = +num2[j]
+      let multi = n1*n2
+      let sum = pos[i + j + 1] + multi
+      pos[i + j + 1] = sum % 10
+      pos[i + j] += Math.floor(sum / 10);
+    }
+  }
+  while (pos[0] == 0) {
+    pos.shift();
+  }
+  return pos.length ? pos.join('') : '0';
+};
+console.log('no43_multiply', no43_multiply('456', '789'));
+
+// TODO：❗️看了解析==========================================================
+// 44. 通配符匹配
+var no44_isMatch = function(s, p) {
+  let m = s.length
+  let n = p.length
+  let dpArr = new Array(m + 1)
+  for(let i = 0; i < m +1; i++) {
+    dpArr[i] = new Array(n + 1).fill(false)
+  }
+  dpArr[0][0] = true
+  for(let i = 1; i <= n; i++){
+    dpArr[0][i] = dpArr[0][i - 1] && p.charAt(i - 1) == '*';
+  }
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+        if (s[i - 1] == p[j - 1] || p[j - 1] == '?') {
+          dpArr[i][j] = dpArr[i - 1][j - 1]
+        } else if (p[j - 1] == '*') {
+          // dpArr[i - 1][j] 匹配空串，dpArr[i][j - 1]可以横向行驶
+          dpArr[i][j] = dpArr[i][j - 1] || dpArr[i - 1][j]
+        }
+    }
+  }
+  return dpArr[m][n]
+};
+"aab"
+"c*a*b"
+
+// console.log('no44_isMatch', no44_isMatch("adcbeb", "a*b?b"));
+
+// TODO：❗️看了解析==========================================================
+/* 51. N 皇后
+给你一个整数 n ，返回所有不同的 n 皇后问题 的解决方案。 */
+
+
+var no51_solveNQueens = function(n) {
+  let result = []
+  let chessBoard = new Array(n).fill([]).map(() => new Array(n).fill('.'))
+
+    function isValid(row, col, chessBoard, n) {
+
+        for(let i = 0; i < row; i++) {
+            if(chessBoard[i][col] === 'Q') {
+                return false
+            }
+        }
+
+        for(let i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+            if(chessBoard[i][j] === 'Q') {
+                return false
+            }
+        }
+
+        for(let i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+            if(chessBoard[i][j] === 'Q') {
+                return false
+            }
+        }
+        return true
+    }
+
+    function transformChessBoard(chessBoard) {
+        let chessBoardBack = []
+        chessBoard.forEach(row => {
+            let rowStr = ''
+            row.forEach(value => {
+                rowStr += value
+            })
+            chessBoardBack.push(rowStr)
+        })
+
+        return chessBoardBack
+    }
+
+
+    function backtracing(row) {
+        if(row === n) {
+            result.push(transformChessBoard(chessBoard))
+            return
+        }
+        for(let col = 0; col < n; col++) {
+            if(isValid(row, col, chessBoard, n)) {
+                chessBoard[row][col] = 'Q'
+                backtracing(row + 1)
+                chessBoard[row][col] = '.'
+            }
+        }
+    }
+    backtracing(0)
+    return result
+    
+};
+
+// console.log('no51_solveNQueens', no51_solveNQueens(4))
+
+
+var no52_solveNQueens = function(n) {
+  let result = []
+  let chessBoard = new Array(n).fill([]).map(() => new Array(n).fill('.'))
+
+    function isValid(row, col, chessBoard, n) {
+
+        for(let i = 0; i < row; i++) {
+            if(chessBoard[i][col] === 'Q') {
+                return false
+            }
+        }
+
+        for(let i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+            if(chessBoard[i][j] === 'Q') {
+                return false
+            }
+        }
+
+        for(let i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+            if(chessBoard[i][j] === 'Q') {
+                return false
+            }
+        }
+        return true
+    }
+
+
+    function backtracing(row) {
+        if(row === n) {
+            result.push([...chessBoard])
+            return
+        }
+        for(let col = 0; col < n; col++) {
+            if(isValid(row, col, chessBoard, n)) {
+                chessBoard[row][col] = 'Q'
+                backtracing(row + 1)
+                chessBoard[row][col] = '.'
+            }
+        }
+    }
+    backtracing(0)
+    return result.length
+    
+};
+// console.log('52', no52_solveNQueens(4));
+// TODO：✅==========================================================
 // 46. 全排列
 /* 给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
 输入：nums = [1,2,3]
@@ -1678,8 +1981,32 @@ var no49_groupAnagrams = function(strs) {
 
 
 
-console.log('no49_groupAnagrams', no49_groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"]))
+// console.log('no49_groupAnagrams', no49_groupAnagrams(["eat", "tea", "tan", "ate", "nat", "bat"]))
 // console.log('no49_groupAnagrams', no49_groupAnagrams(["ddddddddddg","dgggggggggg"]))
+
+// TODO：✅==========================================================
+// 50. Pow(x, n)
+// 实现 pow(x, n) ，即计算 x 的整数 n 次幂函数（即，xn ）。
+var no50_myPow = function(x, n) {
+  if(n === 0 || n === 1) {
+    return n === 0 ? 1 : x;
+  } else if(n < 0) {
+    return no50_myPow(1/x, Math.abs(n));
+  } else {
+    return n % 2 === 0 ? no50_myPow(x*x, n/2) : x*no50_myPow(x*x, Math.floor(n/2));
+  }
+};
+// var myPow = function(x, n) {
+//   if(n ===0 || n ===1) {
+//       return n ===0 ? 1: x
+//   }else if(n < 0){
+//       return myPow(1/x, Math.abs(n))
+//   }else{
+//       return n % 2 === 0 ? myPow(x * x , n/2) :  x*myPow(x * x ,Math.floor(n/2))
+//   }
+// };
+
+// console.log('no50_myPow', no50_myPow(2, 5))
 
 // TODO：✅==========================================================
 // 83. 删除排序链表中的重复元素
@@ -1716,4 +2043,104 @@ var no83_deleteDuplicates = function(head) {
 // let test1 = makeList1([1,1,1,2,3,3,4,5,6])
 // console.log('no83_deleteDuplicates', no83_deleteDuplicates(test1))
 
+var findSubstring = function(s, words) {
+  let wordsMap = new Map()
+  let wordsLen = words[0].length;
+  let wordSum = words.length*wordsLen
+  let finalRes = []
+  for(let i in words) {
+    wordsMap.set(words[i], wordsMap.has(words[i]) ? wordsMap.get(words[i])+1 : 1)
+  }
 
+  for(let i = 0; i < s.length - wordSum + 1; i ++) {
+    let cnt = 0;
+    let begin = i;
+    let subMap = new Map()
+    while(cnt !== words.length) {
+      let subStr = s.slice(begin, begin+wordsLen)
+      if(wordsMap.get(subStr) && (subMap.get(subStr) < wordsMap.get(subStr) || !subMap.get(subStr))) {
+        subMap.set(subStr, (subMap.has(subStr) ? (subMap.get(subStr) + 1) : 1))
+        begin+=wordsLen
+        cnt+=1
+      } else {
+        break
+      }
+    }
+    if(cnt === words.length) {
+      finalRes.push(i)
+    }
+  }
+
+  return finalRes
+};
+
+// console.log('findSubstring', findSubstring("aaabaaaab", ["a","a","a","b"]))
+
+// TODO：==========================================================
+/* 79. 单词搜索
+输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+输出：true */
+
+var no79_exist = function(board, word) {
+  let m = board.length;
+  let n = board[0].length;
+  let path = ''
+  let wordStart= 0
+  let used = new Array(m)
+
+  for(let i = 0; i < n; i++) {
+    used[i] = new Array(n)
+  }
+
+  function backtracing() {
+    for(let i = 0; i < m; i++) {
+      for(let j = 0; j < n; j++) {
+        if(path === word) {
+          return true
+        }
+        if(word[wordStart] === board[i][j] && !used[i][j]) {
+          path += board[i][j]
+          used[i][j] = true
+        }
+        backtracing()
+        used[i][j] = false
+        path = path.slice(0, -1)
+      }
+    }
+  }
+
+  backtracing()
+  
+  return false
+};
+
+// TODO：✅==========================================================
+// 80. 删除有序数组中的重复项 II
+/* 输入：nums = [0,0,1,1,1,1,2,3,3]
+输出：7, nums = [0,0,1,1,2,3,3]
+解释：函数应返回新长度 length = 7, 并且原数组的前五个元素被修改为 0, 0, 1, 1, 2, 3, 3 。
+ 不需要考虑数组中超出新长度后面的元素。 */
+
+var no80_removeDuplicates = function(nums) {
+  let cnt = 0
+  for(let i = 0; i < nums.length; i++){
+    if(i > 1 && nums[i] === nums[i-1]) {
+      continue
+    }
+    if(nums[i] !== nums[i+1]) {
+      nums[cnt] = nums[i]
+      cnt++
+      continue
+    }
+    if(nums[i] === nums[i+1]) {
+      nums[cnt] = nums[i]
+      nums[cnt+1] = nums[i+1]
+      cnt+=2
+      i++
+      continue
+    }
+  }
+  return cnt;
+};
+
+// console.log('no80_removeDuplicates', no80_removeDuplicates([0,0,1,1,1,1,2,3,3]));
