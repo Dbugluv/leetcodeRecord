@@ -231,22 +231,24 @@ var no226_invertTree = function(root) {
 
   return root
 };
+// function dfs( left, right) {
+//   if(left > right) return null
+//   let mid = (right + left) >>> 1; // 相当于除以2
+//   let root = new TreeNode(nums[mid]) 
+//   root.left = dfs(left, mid - 1)
+//   root.right = dfs(mid + 1, right)
 
-function dfs( left, right) {
-  if(left > right) return null
-  let mid = (right + left) >>> 1; // 相当于除以2
-  let root = new TreeNode(nums[mid]) 
-  root.left = dfs(left, mid - 1)
-  root.right = dfs(mid + 1, right)
+//   return root;
+// }
 
-  return root;
-}
-
-return dfs(0, nums.length - 1)
+// return dfs(0, nums.length - 1)
 
 // TODO：✅==========================================================
 // 我日：我自己做出来了 优化完：执行用时：94.34%，内存94.70%
 //654. 最大二叉树 [3,2,1,6,0,5]
+// 创建一个根节点，其值为 nums 中的最大值。递归地在最大值 左边 的 子数组前缀上 构建左子树。
+// 递归地在最大值 右边 的 子数组后缀上 构建右子树。
+
 function no654_constructMaximumBinaryTree(nums) {
   function dfs(nums) {
     if(nums.length === 0) return null
@@ -265,32 +267,6 @@ function no654_constructMaximumBinaryTree(nums) {
   }
 
   return dfs(nums)
-}
-
-// TODO：✅==========================================================
-// 105. 从前序与中序遍历序列构造二叉树
-TreeNode build(int[] preorder, int preStart, int preEnd, 
-  int[] inorder, int inStart, int inEnd) {
-if (preStart > preEnd) {
-return null;
-}
-
-// root 节点对应的值就是前序遍历数组的第一个元素
-int rootVal = preorder[preStart];
-// rootVal 在中序遍历数组中的索引
-int index = valToIndex.get(rootVal);
-
-int leftSize = index - inStart;
-
-// 先构造出当前根节点
-TreeNode root = new TreeNode(rootVal);
-// 递归构造左右子树
-root.left = build(preorder, preStart + 1, preStart + leftSize,
-         inorder, inStart, index - 1);
-
-root.right = build(preorder, preStart + leftSize + 1, preEnd,
-          inorder, index + 1, inEnd);
-return root;
 }
 
 // TODO：✅==========================================================
@@ -329,6 +305,163 @@ var no106_buildTree = function(inorder, postorder) {
 };
 
 // TODO：❗️==========================================================
+// 297. 二叉树的序列化与反序列化
+var no297_serialize = function(root) {  // 前序：根左右
+  let res = []
+  function dfs(root) {
+    if(!root) {
+      res.push('#')
+      return null
+    }
+    res.push(root.val)
+    dfs(root.left)
+    dfs(root.right)
+  }
+
+  dfs(root)
+  return res.join(',')
+};
+
+var no297_serialize2 = function(root) {
+  if (root == null) {                  // 遍历到 null 节点
+    return '#';
+  }
+  const left = serialize(root.left);   // 左子树的序列化结果
+  const right = serialize(root.right); // 右子树的序列化结果
+  return root.val + ',' + left + ','+ right; // 按  根,左,右  拼接字符串
+}
+
+const no297_deserialize = (data) => {
+  const list = data.split(',');   // split成数组
+
+  const buildTree = (list) => {   // 基于list构建当前子树
+    const rootVal = list.shift(); // 弹出首项，获取它的“数据”
+    if (rootVal == "#") {         // 是X，返回null节点
+      return null;
+    }
+    const root = new TreeNode(rootVal); // 不是X，则创建节点
+    root.left = buildTree(list);        // 递归构建左子树
+    root.right = buildTree(list);       // 递归构建右子树
+    return root;                        // 返回当前构建好的root
+  };
+
+  return buildTree(list); // 构建的入口
+};
+
+// TODO：❗️==========================================================
+// 652. 寻找重复的子树
+function no652_findDuplicateSubtrees(root) {
+  let memo = new Map()
+  let res = []
+  traverse(root)
+
+  function traverse(root) {
+    if(root == null) {
+        return '#'
+    }
+    let leftValue = traverse(root.left)
+    let rightValue = traverse(root.right)
+    let subTree = leftValue + ',' + rightValue + ',' + root.val
+    let freq = memo.get(subTree) || 0
+    if(freq == 1) {
+        res.push(root)
+    }
+    memo.set(subTree, freq + 1)
+    return subTree
+}
+  return res
+} 
+
+//++++++++++++++++++++++++二叉搜索树BST+++++++++++++++++++++++++++++++
+// TODO：✅==========================================================
+// 230. 二叉搜索树中第K小的元素
+// 给定一个二叉搜索树的根节点 root ，和一个整数 k ，请你设计一个算法查找其中第 k 个最小元素（从 1 开始计数）。
+
+// 超低效，因为遍历无法中途断开
+var no230_kthSmallest = function(root, k) {
+  let res
+  function dfs(root) {
+    if(!root) return null
+    dfs(root.left)
+    k--
+    if(k == 0) {
+    res = root.val
+    }
+    dfs(root.right)
+  }
+
+  dfs(root)
+
+  return res
+};
+
+// TODO：✅==========================================================
+// 538. 把二叉搜索树转换为累加树
+var no538_convertBST = function(root) {
+  let sum = 0;
+
+  function dfs(root) {
+    if(!root) return null
+    dfs(root.right)
+    sum+=root.val
+    root.val = sum
+    dfs(root.left)
+    return root
+  }
+
+  return dfs(root)
+};
+
+// TODO：❗️==========================================================
+//  98. 验证二叉搜索树
+//  输入：root = [5,1,4,null,null,3,6]
+//  输出：false
+
+var no98_isValidBST = function(root) {
+  let pre = null;
+  function deep(root) {
+    if(!root) return true
+    let left = deep(root.left)
+    if(!pre && root.val < pre) {
+      return false
+    }
+    pre = root.val
+
+    let right = deep(root.right)
+    return left && right
+  }
+  deep(root)
+};
+
+/*
+boolean no98_isValidBST(TreeNode root) {
+  return isValidBST(root, null, null);
+}
+
+//  限定以 root 为根的子树节点必须满足 max.val > root.val > min.val
+/* boolean isValidBST(TreeNode root, TreeNode min, TreeNode max) {
+  // base case
+  if (root == null) return true;
+  // 若 root.val 不符合 max 和 min 的限制，说明不是合法 BST
+  if (min != null && root.val <= min.val) return false;
+  if (max != null && root.val >= max.val) return false;
+  // 限定左子树的最大值是 root.val，右子树的最小值是 root.val
+  return isValidBST(root.left, min, root) 
+      && isValidBST(root.right, root, max);
+} */
+
+// 700. 二叉搜索树中的搜索
+var no700_searchBST = function(root, val) {
+  if (!root || root.val === val) {
+    return root;
+  }
+  if (root.val > val)
+    return searchBST(root.left, val);
+  if (root.val < val)
+    return searchBST(root.right, val);
+};
+
+// TODO：❗️==========================================================
 // 96. 不同的二叉搜索树
 // 给你一个整数 n ，求恰由 n 个节点组成且节点值从 1 到 n 互不相同的 二叉搜索树 有多少种？返回满足题意的二叉搜索树的种数。
 
@@ -345,6 +478,36 @@ var no96_numTrees = function(n) {
 
   return dp[n];
 };
+
+/* 主函数 */
+function no96_numTrees2(n) {  // 存在重叠子问题，可以用备忘录记录（    memo = [n + 1][n + 1]; ）
+  function count(lo, hi) {
+    // base case
+    if (lo > hi) return 1;
+    // 查备忘录
+    if (memo[lo][hi] != 0) {
+      return memo[lo][hi];
+    }
+
+    let res = 0;
+    for (let i = lo; i <= hi; i++) {
+        // i 的值作为根节点 root
+        let left = count(lo, i - 1);
+        let right = count(i + 1, hi);
+        // 左右子树的组合数乘积是 BST 的总数
+        res += left * right;
+    }
+
+    // 将结果存入备忘录
+    memo[lo][hi] = res;
+  
+    return res;
+  }
+
+  return count(1, n);
+}
+
+
 // console.log('no96_numTrees', no96_numTrees(2))
 
 // TODO：❗️抄得不明不白==========================================================
@@ -415,31 +578,8 @@ function TreeNode(val, left, right) {
   this.right = (right===undefined ? null : right)
 }
 
-// TODO：❗️==========================================================
-//  98. 验证二叉搜索树
-//  输入：root = [5,1,4,null,null,3,6]
-//  输出：false
-
-var no98_isValidBST = function(root) {
-  let pre = null;
-  function deep(root) {
-    if(!root) return true
-    let left = deep(root.left)
-    if(!pre && root.val < pre) {
-      return false
-    }
-    pre = root.val
-
-    let right = deep(root.right)
-    return left && right
-  }
-  deep(root)
-};
-
-let no98params = TreeNode([5,1,4,null,null,3,6])
-// console.log('no98_isValidBST', no98_isValidBST(no98params))
-
 // TODO：✅==========================================================
+// 100.是否是相同的树
 var no100_isSameTree = function(p, q) {
   if(p == null && q == null) 
     return true;
@@ -454,7 +594,7 @@ let p = new TreeNode([1,1,2])
 let q = new TreeNode([1,1,2])
 // console.log('[1,2,1]no100_isSameTree', no100_isSameTree(p,q))
 
-// TODO：==========================================================
+// TODO：❗️==========================================================
 // 102. 二叉树的层序遍历
 var no102_zigzagLevelOrder = function(root) {
   let res=[],queue=[];
@@ -560,11 +700,7 @@ var no107_levelOrderBottom = function(root) {
   return res.reverse();
 };
 
-// TODO：✅==========================================================
-// 105. 从前序与中序遍历序列构造二叉树
-// 输入: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
-// 输出: [3,9,20,null,null,15,7]
-
-var buildTree = function(preorder, inorder) {
-
-};
+// TODO：==========================================================
+// 341. 扁平化嵌套列表迭代器
+// 输入：nestedList = [[1,1],2,[1,1]]
+// 输出：[1,1,2,1,1]
