@@ -661,8 +661,38 @@ var no1650_lowestCommonAncestor = function(p, q) {
 // 给你一棵 完全二叉树 的根节点 root ，求出该树的节点个数。
 
 var no222_countNodes = function(root) {
-
+  let sum = 0;
+  function dfs(root) {
+    if(!root) return null
+    sum+=1
+    dfs(root.left)
+    dfs(root.right)
+  }
+  dfs(root)
+  return sum
 };
+
+// 222 的第二种解法 但是效率没有上面高...?
+function countNodes(root) {
+  let l = root, r = root;
+  // 沿最左侧和最右侧分别计算高度
+  let hl = 0, hr = 0;
+  while (l != null) {
+      l = l.left;
+      hl++;
+  }
+  while (r != null) {
+      r = r.right;
+      hr++;
+  }
+  // 如果左右侧计算的高度相同，则是一棵满二叉树
+  if (hl == hr) {
+      return Math.pow(2, hl) - 1;
+  }
+  // 如果左右侧的高度不同，则按照普通二叉树的逻辑计算
+  return 1 + countNodes(root.left) + countNodes(root.right);
+}
+
 
 
 // TODO：✅==========================================================

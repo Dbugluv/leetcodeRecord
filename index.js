@@ -2922,6 +2922,73 @@ var no83_deleteDuplicates = function(head) {
 };
 
 
+// TODO：==========================================================
+// 234. 回文链表
+// 输入：head = [1,2,2,1]
+// 输出：true
+
+
+var no234_isPalindrome = function(head) {
+  let left = head
+
+  function traverse(right) {
+    if(!right) return true
+    let res = traverse(right.next)
+    // 后序遍历
+    res = res && (right.val == left.val)
+    left = left.next
+    
+    return res
+  }
+
+  return traverse(head)
+};
+
+function no234_isPalindrome2( head) {
+  let slow, fast;
+  slow = fast = head;
+  while (fast != null && fast.next != null) {
+      slow = slow.next;
+      fast = fast.next.next;
+  }
+  
+  if (fast != null) slow = slow.next;
+  
+  function reverse(head) {
+    let pre = null, cur = head;
+    while (cur != null) {
+      let next = cur.next;
+        cur.next = pre;
+        pre = cur;
+        cur = next;
+    }
+    return pre;
+  }
+  let left = head;
+  let right = reverse(slow);
+  while (right != null) {
+      if (left.val != right.val)
+          return false;
+      left = left.next;
+      right = right.next;
+  }
+  
+  return true;
+}
+
+
+var no83_deleteDuplicates = function(head) {
+  if(!head || !head.next) {
+    return head;
+  }
+  
+  head.next = no83_deleteDuplicates(head.next);
+  if(head.val === head.next.val) {
+    head.next = head.next.next
+  }
+  return head
+};
+
 /* var no83_deleteDuplicates = function(head) {
   if(!head || !head.next) {
     return head;
