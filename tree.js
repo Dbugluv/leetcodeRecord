@@ -571,6 +571,35 @@ var no99_recoverTree = function(root) {
   err2.val = temp;
 };
 
+// TODO：✅==========================================================
+//235. 二叉搜索树的最近公共祖先 
+
+// 祖先框架
+var no235_lowestCommonAncestor = function(root, p, q) {
+  function dfs(root) {
+      if(!root) return null
+      if(root === p || root === q) return root  // 这里去判断是否包含所需元素
+
+      let left = dfs(root.left)
+      let right = dfs(root.right)
+
+      if(left && right) return root
+
+      return left ? left : right
+  }
+
+  return dfs(root)
+};
+
+const  no235_lowestCommonAncestor2 = (root, p, q) => {
+  if (p.val < root.val && q.val < root.val) {
+      return lowestCommonAncestor(root.left, p, q);
+  }
+  if (p.val > root.val && q.val > root.val) {
+      return lowestCommonAncestor(root.right, p, q);
+  }
+  return root;
+};
 
 function TreeNode(val, left, right) {
   this.val = (val===undefined ? 0 : val)
@@ -593,6 +622,7 @@ var no100_isSameTree = function(p, q) {
 let p = new TreeNode([1,1,2])
 let q = new TreeNode([1,1,2])
 // console.log('[1,2,1]no100_isSameTree', no100_isSameTree(p,q))
+
 
 // TODO：❗️==========================================================
 // 102. 二叉树的层序遍历
@@ -700,7 +730,39 @@ var no107_levelOrderBottom = function(root) {
   return res.reverse();
 };
 
-// TODO：==========================================================
+// TODO：❗️纯CV==========================================================
 // 341. 扁平化嵌套列表迭代器
 // 输入：nestedList = [[1,1],2,[1,1]]
 // 输出：[1,1,2,1,1]
+var NestedIterator = function (nestedList) {
+  this.stack = [];
+  for (let i = nestedList.length - 1; i >= 0; i--) {
+      this.stack.push(nestedList[i]);
+  }
+};
+
+NestedIterator.prototype.stackTop2Integer = function () {
+  while (this.stack.length > 0) {
+      const top = this.stack[this.stack.length - 1];
+      if (top.isInteger()) {
+          return;
+      }
+      this.stack.pop();
+      const list = top.getList();
+      for (let i = list.length - 1; i >= 0; i--) {
+          this.stack.push(list[i]);
+      }
+  }
+};
+
+NestedIterator.prototype.next = function () {
+  this.stackTop2Integer();
+  const top = this.stack.pop();
+
+  return top.getInteger();
+};
+
+NestedIterator.prototype.hasNext = function () {
+  this.stackTop2Integer();
+  return this.stack.length > 0;
+};
