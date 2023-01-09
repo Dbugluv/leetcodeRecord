@@ -572,11 +572,69 @@ var no99_recoverTree = function(root) {
 };
 
 
-function TreeNode(val, left, right) {
-  this.val = (val===undefined ? 0 : val)
-  this.left = (left===undefined ? null : left)
-  this.right = (right===undefined ? null : right)
-}
+
+
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val) {
+ *     this.val = val;
+ *     this.left = this.right = null;
+ * }
+ */
+
+// TODO：✅==========================================================
+// 1644.查找公共祖先 但是p、q不一定在树中。
+// 所以根据之前p、q在子树中，由前序的判断找到一个就返回，改成到后序（必须都遍历完）再返回
+
+var no1644_lowestCommonAncestor = function(root, p, q) {
+  let existP = false
+  let existQ = false
+  let res =  dfs(root)
+  
+  if(!existP || !existQ) {
+      return null
+  }
+
+  function dfs(root) {
+      if(!root) return null
+
+      let left = dfs(root.left)
+      let right = dfs(root.right)
+
+      if(left && right) return root
+      if(root === p || root === q) {
+          root === p && (existP = true)
+          root === q && (existQ = true)
+          return root
+      }
+
+      return left ? left : right
+  }
+  return res
+};
+
+// TODO：✅==========================================================
+// 1644.查找公共祖先 每个节点都包含其父节点的引用（指针）。
+var no1650_lowestCommonAncestor = function(p, q) {
+  let a = p;
+  let b = q;
+  while(a!=b) {
+    if(!a) a = q;         // a 走一步，如果走到根节点，转到 q 节点
+    else a = a.parent;
+    if(!b) b = p
+    else b = b.parent;
+  }
+  return a
+};
+
+// TODO：✅==========================================================
+// 222. 完全二叉树的节点个数
+// 给你一棵 完全二叉树 的根节点 root ，求出该树的节点个数。
+
+var no222_countNodes = function(root) {
+
+};
+
 
 // TODO：✅==========================================================
 // 100.是否是相同的树
