@@ -2106,50 +2106,6 @@ var no90_subsetsWithDup = function(nums) {
 
 // console.log('no90_subsetsWithDup', no90_subsetsWithDup([1,4,4,4,4]))
 
-function TreeNode(val, left, right) {
-     this.val = (val===undefined ? 0 : val)
-      this.left = (left===undefined ? null : left)
-     this.right = (right===undefined ? null : right)
- }
-
-//  98. 验证二叉搜索树
-//  输入：root = [5,1,4,null,null,3,6]
-//  输出：false
-
-var no98_isValidBST = function(root) {
-  let pre = null;
-  function deep(root) {
-    if(!root) return true
-    let left = deep(root.left)
-    if(!pre && root.val < pre) {
-      return false
-    }
-    pre = root.val
-
-    let right = deep(root.right)
-    return left && right
-  }
-  deep(root)
-};
-
-let no98params = TreeNode([5,1,4,null,null,3,6])
-console.log('no98_isValidBST', no98_isValidBST(no98params))
-
-// TODO：✅==========================================================
-var no100_isSameTree = function(p, q) {
-  if(p == null && q == null) 
-    return true;
-  if(p == null || q == null) 
-    return false;
-  if(p.val != q.val) 
-    return false;
-  return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
-};
-
-let p = new TreeNode([1,1,2])
-let q = new TreeNode([1,1,2])
-console.log('[1,2,1]no100_isSameTree', no100_isSameTree(p,q))
-
 // TODO：✅==========================================================
 // 41. 缺失的第一个正数
 /* 给你一个未排序的整数数组 nums ，请你找出其中没有出现的最小的正整数。
@@ -2976,6 +2932,28 @@ function no234_isPalindrome2( head) {
   return true;
 }
 
+// TODO：✅==========================================================
+// 283. 移动零
+// 输入: nums = [0,1,0,3,12]
+// 输出: [1,3,12,0,0]
+
+var no283_moveZeroes = function(nums) {
+  let slow = 0, fast = 0;
+  while(fast < nums.length) {
+    if(nums[fast] !== 0) {
+      nums[slow] = nums[fast]
+      slow++
+    }
+    fast++
+  }
+  for(; slow < nums.length; slow++) {
+    nums[slow] = 0
+  }
+
+  return nums
+};
+// console.log('no283_moveZeroes', no283_moveZeroes([0,1,0,3,12]))
+
 
 var no83_deleteDuplicates = function(head) {
   if(!head || !head.next) {
@@ -3124,4 +3102,126 @@ var no88_merge = function(nums1, m, nums2, n) {
   }
 };
 
-no88_merge([4,5,6,0,0,0],3,[1,2,3],3)
+// no88_merge([4,5,6,0,0,0],3,[1,2,3],3)
+
+// TODO：==========================================================
+// 167. 两数之和 II - 输入有序数组
+// 给你一个下标从 1 开始的整数数组，该数组已按 非递减顺序排列
+var no167_twoSum = function(numbers, target) {
+  let left = 0, right = numbers.length - 1;
+  while(left < right) {
+    let sum = numbers[left] + numbers[right];
+    if (sum == target) {
+      // 题目要求的索引是从 1 开始的
+      return [left + 1, right + 1];
+    } else if (sum < target) {
+        left++; 
+    } else if (sum > target) {
+        right--; 
+    }
+  }
+  return [-1,-1]
+};
+
+// 344. 反转字符串
+// 输入：s = ["h","e","l","l","o"]
+// 输出：["o","l","l","e","h"]
+var no344_reverseString = function(s) {
+  let left = 0, right = s.length - 1;
+  while(left < right) {
+    let temp = s[left]
+    s[left] = s[right]
+    s[right] = temp
+    left++
+    right--
+  }
+  return s
+};
+
+// console.log('no167_twoSum', no344_reverseString(["h","e","l","l","o"]))
+{
+  // 前缀和数组
+  let preSum;
+
+  /* 输入一个数组，构造前缀和 */
+  function NumArray(nums) {
+      preSum = new Array(nums.length + 1);
+      for (let i = 1; i < preSum.length; i++) {
+          preSum[i] = preSum[i - 1] + nums[i - 1];
+      }
+  }
+  
+  /* 查询闭区间 [left, right] 的累加和 */
+  function sumRange(left, right) {
+      return preSum[right + 1] - preSum[left];
+  }
+}
+
+
+// 304. 二维区域和检索 - 矩阵不可变
+{
+    // 定义：preSum[i][j] 记录 matrix 中子矩阵 [0, 0, i-1, j-1] 的元素和
+    let preSum;
+    
+    function NumMatrix(matrix) {
+      let m = matrix.length, n = matrix[0].length;
+        if (m == 0 || n == 0) return;
+        // 构造前缀和矩阵
+        preSum = new Array(m + 1)
+        for (let i = 0; i <= m + 1; i++) {
+          preSum[i] = new Array(n + 1).fill(0)
+        }
+        for (let i = 1; i <= m; i++) {
+            for (let j = 1; j <= n; j++) {
+                // 计算每个矩阵 [0, 0, i, j] 的元素和
+                preSum[i][j] = preSum[i-1][j] + preSum[i][j-1] + matrix[i - 1][j - 1] - preSum[i-1][j-1];
+            }
+        }
+    }
+    
+    // 计算子矩阵 [x1, y1, x2, y2] 的元素和
+    function sumRegion( x1,  y1,  x2,  y2) {
+        // 目标矩阵之和由四个相邻矩阵运算获得
+        return preSum[x2+1][y2+1] - preSum[x1][y2+1] - preSum[x2+1][y1] + preSum[x1][y1];
+    }
+}
+
+// 370. 区间加法
+// 输入: length = 5, updates = [[1,3,2],[2,4,3],[0,2,-2]] [startIndex, endIndex, inc]
+// 输出: [-2,0,3,5,3]
+
+var no370_getModifiedArray = function(length, updates) {
+  let nums = new Array(length).fill(0)
+  let diff = nums
+
+
+  // 差分法基本方法 -->
+  function difference(nums) {
+    for(let i = 1; i < length; i++) {
+      diff[i] = diff[i] - diff[i-1]
+    }
+  }
+
+  function increment(i, j, val) {
+    diff[i] += val
+    j+1 < length && (diff[j+1] -= val)
+  }
+
+  function returnRes() {
+    let res = [diff[0]]
+    for(let i = 1; i < length; i++ ) {
+      res[i] = res[i-1] + diff[i]
+    }
+    return res
+  }
+  // <-- 差分法基本方法 
+
+  difference(nums)
+  for(let [i, j ,val] of updates) {
+    increment(i, j, val)
+  }
+
+  return returnRes()
+};
+
+// console.log('no370_getModifiedArray', no370_getModifiedArray(5, [[1,3,2],[2,4,3],[0,2,-2]]))

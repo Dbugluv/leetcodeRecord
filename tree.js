@@ -707,8 +707,6 @@ var no100_isSameTree = function(p, q) {
   return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
 };
 
-let p = new TreeNode([1,1,2])
-let q = new TreeNode([1,1,2])
 // console.log('[1,2,1]no100_isSameTree', no100_isSameTree(p,q))
 
 
